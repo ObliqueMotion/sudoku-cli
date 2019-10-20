@@ -8,6 +8,10 @@ const SHIFT_COL: u64 = 45;
 const SHIFT_BOX: u64 = 36;
 const SHIFT_SQUARE: [u64;9] = [ 32, 28, 24, 20, 16, 12, 8, 4, 0 ];
 
+const FOUR_SET_BITS: u64 = 0b1111;
+const NINE_SET_BITS: u64 = 0b111111111;
+
+
 const CLEAR: [u64;9] = [
     0b1_111111111_111111111_111111111_0000_1111_1111_1111_1111_1111_1111_1111_1111,
     0b1_111111111_111111111_111111111_1111_0000_1111_1111_1111_1111_1111_1111_1111,
@@ -69,9 +73,20 @@ pub const fn shift_to_square(value: usize, col: usize) -> u64 {
     (value as u64) << SHIFT_SQUARE[col]
 }
 
+pub const fn values_in_row(data: u64) -> u64 {
+    (data >> SHIFT_ROW) & NINE_SET_BITS
+}
+
+pub const fn values_in_col(data: u64) -> u64 {
+    (data >> SHIFT_COL) & NINE_SET_BITS
+}
+
+pub const fn values_in_box(data: u64) -> u64 {
+    (data >> SHIFT_BOX) & NINE_SET_BITS
+}
 
 pub const fn value_in_square(data: u64, col: usize) -> u64 {
-    (data & !CLEAR[col]) >> SHIFT_SQUARE[col]
+    (data >> SHIFT_SQUARE[col]) & FOUR_SET_BITS
 }
 
 pub const fn zero_out_square(data: u64, col: usize) -> u64 {
@@ -137,7 +152,7 @@ mod tests {
     }
 
     #[test]
-    fn not_shifts() {
+    fn inverse_shifts() {
         const NINE_UNSET_BITS: u64 =
             0b1111111111111111111111111111111111111111111111111111111_000000000;
         assert_eq!(
@@ -197,16 +212,19 @@ mod tests {
     }
 
     #[test]
-    fn isolations() {
-        const COLUMNS: u64 = 0b0001_0010_0011_0100_0101_0110_0111_1000_1001;
-        assert_eq!(1, value_in_square(COLUMNS, 0));
-        assert_eq!(2, value_in_square(COLUMNS, 1));
-        assert_eq!(3, value_in_square(COLUMNS, 2));
-        assert_eq!(4, value_in_square(COLUMNS, 3));
-        assert_eq!(5, value_in_square(COLUMNS, 4));
-        assert_eq!(6, value_in_square(COLUMNS, 5));
-        assert_eq!(7, value_in_square(COLUMNS, 6));
-        assert_eq!(8, value_in_square(COLUMNS, 7));
-        assert_eq!(9, value_in_square(COLUMNS, 8));
+    fn retrievals() {
+        const DATA: u64 = 0b0_100101001_101010101_110010011_0001_0010_0011_0100_0101_0110_0111_1000_1001;
+        assert_eq!(1, value_in_square(DATA, 0));
+        assert_eq!(2, value_in_square(DATA, 1));
+        assert_eq!(3, value_in_square(DATA, 2));
+        assert_eq!(4, value_in_square(DATA, 3));
+        assert_eq!(5, value_in_square(DATA, 4));
+        assert_eq!(6, value_in_square(DATA, 5));
+        assert_eq!(7, value_in_square(DATA, 6));
+        assert_eq!(8, value_in_square(DATA, 7));
+        assert_eq!(9, value_in_square(DATA, 8));
+        assert_eq!(0b100101001, values_in_row(DATA));
+        assert_eq!(0b101010101, values_in_col(DATA));
+        assert_eq!(0b110010011, values_in_box(DATA));
     }
 }

@@ -11,6 +11,10 @@ static OUTPUT: [&str;10] = [" ", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
 pub struct SudokuData(Cell<u64>);
 
 impl SudokuData {
+    pub fn data(&self) -> u64 {
+        self.0.get()
+    }
+
     pub fn clear(&self) {
         self.0.set(0);
     }
