@@ -6,11 +6,36 @@ pub struct SudokuBoard {
     state: [SudokuData; 9],
 }
 
+fn box_index(row: usize, col: usize) -> usize {
+    match row {
+        0 | 1 | 2 => match col {
+            0 | 1 | 2 => 0,
+            3 | 4 | 5 => 1,
+            _ => 2,
+        },
+        3 | 4 | 5 => match col {
+            0 | 1 | 2 => 3,
+            3 | 4 | 5 => 4,
+            _ => 5,
+        },
+        _ => match col {
+            0 | 1 | 2 => 6,
+            3 | 4 | 5 => 7,
+            _ => 8,
+        },
+    }
+}
+
 impl SudokuBoard {
     pub fn insert(&self, value: u64, row: usize, col: usize) {
         assert!((1..=9).contains(&value));
         assert!((0..=8).contains(&row));
         assert!((0..=8).contains(&col));
+        let bx = box_index(row, col);
+        self.state[row].set_cell(value, col);
+        self.state[row].mark_in_row(value);
+        self.state[col].mark_in_col(value);
+        self.state[bx ].mark_in_box(value);
     }
 }
 

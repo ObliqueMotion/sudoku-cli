@@ -1,6 +1,6 @@
 use crate::sudoku::bitwise::{
-    as_bit, to_box, to_col, as_bit_inverse, to_box_inverse, to_col_inverse, to_row_inverse, to_row, clear_cell,
-    to_cell, value_in_cell,
+    as_bit, as_bit_inverse, clear_cell, to_box, to_box_inverse, to_cell, to_col, to_col_inverse,
+    to_row, to_row_inverse, value_in_cell,
 };
 use std::cell::Cell;
 use std::fmt;
@@ -13,11 +13,11 @@ impl SudokuData {
         self.0.set(0);
     }
 
-    pub fn clear_cell(&self, col: u64) {
+    pub fn clear_cell(&self, col: usize) {
         self.0.set(clear_cell(self.0.get(), col));
     }
 
-    pub fn set_cell(&self, value: u64, col: u64) {
+    pub fn set_cell(&self, value: u64, col: usize) {
         self.0.set(self.0.get() | to_cell(value, col))
     }
 
@@ -34,18 +34,21 @@ impl SudokuData {
     }
 
     pub fn unmark_from_row(&self, value: u64) {
-        self.0.set(self.0.get() & to_row_inverse(as_bit_inverse(value)));
+        self.0
+            .set(self.0.get() & to_row_inverse(as_bit_inverse(value)));
     }
 
     pub fn unmark_from_col(&self, value: u64) {
-        self.0.set(self.0.get() & to_col_inverse(as_bit_inverse(value)));
+        self.0
+            .set(self.0.get() & to_col_inverse(as_bit_inverse(value)));
     }
 
     pub fn unmark_from_box(&self, value: u64) {
-        self.0.set(self.0.get() & to_box_inverse(as_bit_inverse(value)));
+        self.0
+            .set(self.0.get() & to_box_inverse(as_bit_inverse(value)));
     }
 
-    fn format_cell(&self, col: u64) -> &str {
+    fn format_cell(&self, col: usize) -> &str {
         match value_in_cell(self.0.get(), col) {
             0 => " ",
             1 => "1",
