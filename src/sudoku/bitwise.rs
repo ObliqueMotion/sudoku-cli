@@ -1,39 +1,39 @@
-const ONE: u64 = 0b0000000000000000000000000000000000000000000000000000000_100000000;
-const TWO: u64 = 0b0000000000000000000000000000000000000000000000000000000_010000000;
+const ONE:   u64 = 0b0000000000000000000000000000000000000000000000000000000_100000000;
+const TWO:   u64 = 0b0000000000000000000000000000000000000000000000000000000_010000000;
 const THREE: u64 = 0b0000000000000000000000000000000000000000000000000000000_001000000;
-const FOUR: u64 = 0b0000000000000000000000000000000000000000000000000000000_000100000;
-const FIVE: u64 = 0b0000000000000000000000000000000000000000000000000000000_000010000;
-const SIX: u64 = 0b0000000000000000000000000000000000000000000000000000000_000001000;
+const FOUR:  u64 = 0b0000000000000000000000000000000000000000000000000000000_000100000;
+const FIVE:  u64 = 0b0000000000000000000000000000000000000000000000000000000_000010000;
+const SIX:   u64 = 0b0000000000000000000000000000000000000000000000000000000_000001000;
 const SEVEN: u64 = 0b0000000000000000000000000000000000000000000000000000000_000000100;
 const EIGHT: u64 = 0b0000000000000000000000000000000000000000000000000000000_000000010;
-const NINE: u64 = 0b0000000000000000000000000000000000000000000000000000000_000000001;
+const NINE:  u64 = 0b0000000000000000000000000000000000000000000000000000000_000000001;
 
-const ROW_SHIFT: u64 = 54;
-const COL_SHIFT: u64 = 45;
-const BOX_SHIFT: u64 = 36;
-const ZERO_SHIFT: u64 = 32;
-const ONE_SHIFT: u64 = 28;
-const TWO_SHIFT: u64 = 24;
-const THREE_SHIFT: u64 = 20;
-const FOUR_SHIFT: u64 = 16;
-const FIVE_SHIFT: u64 = 12;
-const SIX_SHIFT: u64 = 8;
-const SEVEN_SHIFT: u64 = 4;
-const EIGHT_SHIFT: u64 = 0;
+const SHIFT_EIGHT: u64 = 0;
+const SHIFT_SEVEN: u64 = 4;
+const SHIFT_SIX:   u64 = 8;
+const SHIFT_FIVE:  u64 = 12;
+const SHIFT_FOUR:  u64 = 16;
+const SHIFT_THREE: u64 = 20;
+const SHIFT_TWO:   u64 = 24;
+const SHIFT_ONE:   u64 = 28;
+const SHIFT_ZERO:  u64 = 32;
+const SHIFT_BOX:   u64 = 36;
+const SHIFT_COL:   u64 = 45;
+const SHIFT_ROW:   u64 = 54;
 
-const CLEAR_ZERO: u64 =
+const CLEAR_ZERO:  u64 =
     0b1_111111111_111111111_111111111_0000_1111_1111_1111_1111_1111_1111_1111_1111;
-const CLEAR_ONE: u64 =
+const CLEAR_ONE:   u64 =
     0b1_111111111_111111111_111111111_1111_0000_1111_1111_1111_1111_1111_1111_1111;
-const CLEAR_TWO: u64 =
+const CLEAR_TWO:   u64 =
     0b1_111111111_111111111_111111111_1111_1111_0000_1111_1111_1111_1111_1111_1111;
 const CLEAR_THREE: u64 =
     0b1_111111111_111111111_111111111_1111_1111_1111_0000_1111_1111_1111_1111_1111;
-const CLEAR_FOUR: u64 =
+const CLEAR_FOUR:  u64 =
     0b1_111111111_111111111_111111111_1111_1111_1111_1111_0000_1111_1111_1111_1111;
-const CLEAR_FIVE: u64 =
+const CLEAR_FIVE:  u64 =
     0b1_111111111_111111111_111111111_1111_1111_1111_1111_1111_0000_1111_1111_1111;
-const CLEAR_SIX: u64 =
+const CLEAR_SIX:   u64 =
     0b1_111111111_111111111_111111111_1111_1111_1111_1111_1111_1111_0000_1111_1111;
 const CLEAR_SEVEN: u64 =
     0b1_111111111_111111111_111111111_1111_1111_1111_1111_1111_1111_1111_0000_1111;
@@ -70,56 +70,56 @@ pub fn as_not_bit(x: u64) -> u64 {
     }
 }
 
-pub const fn as_row(x: u64) -> u64 {
-    x << ROW_SHIFT
+pub const fn to_row(x: u64) -> u64 {
+    x << SHIFT_ROW
 }
 
-pub const fn as_col(x: u64) -> u64 {
-    x << COL_SHIFT
+pub const fn to_col(x: u64) -> u64 {
+    x << SHIFT_COL
 }
 
-pub const fn as_box(x: u64) -> u64 {
-    x << BOX_SHIFT
+pub const fn to_box(x: u64) -> u64 {
+    x << SHIFT_BOX
 }
 
-pub const fn as_not_row(x: u64) -> u64 {
-    x << ROW_SHIFT | ((1 << ROW_SHIFT) - 1)
+pub const fn to_row_inverse(x: u64) -> u64 {
+    x << SHIFT_ROW | ((1 << SHIFT_ROW) - 1)
 }
 
-pub const fn as_not_col(x: u64) -> u64 {
-    x << COL_SHIFT | ((1 << COL_SHIFT) - 1)
+pub const fn to_col_inverse(x: u64) -> u64 {
+    x << SHIFT_COL | ((1 << SHIFT_COL) - 1)
 }
 
-pub const fn as_not_box(x: u64) -> u64 {
-    x << BOX_SHIFT | ((1 << BOX_SHIFT) - 1)
+pub const fn to_box_inverse(x: u64) -> u64 {
+    x << SHIFT_BOX | ((1 << SHIFT_BOX) - 1)
 }
 
 pub fn to_cell(data: u64, col: u64) -> u64 {
     match col {
-        0 => data << ZERO_SHIFT,
-        1 => data << ONE_SHIFT,
-        2 => data << TWO_SHIFT,
-        3 => data << THREE_SHIFT,
-        4 => data << FOUR_SHIFT,
-        5 => data << FIVE_SHIFT,
-        6 => data << SIX_SHIFT,
-        7 => data << SEVEN_SHIFT,
-        8 => data << EIGHT_SHIFT,
+        0 => data << SHIFT_ZERO,
+        1 => data << SHIFT_ONE,
+        2 => data << SHIFT_TWO,
+        3 => data << SHIFT_THREE,
+        4 => data << SHIFT_FOUR,
+        5 => data << SHIFT_FIVE,
+        6 => data << SHIFT_SIX,
+        7 => data << SHIFT_SEVEN,
+        8 => data << SHIFT_EIGHT,
         _ => panic!("to_cell(): Attempted to shift to column outside of board."),
     }
 }
 
 pub fn value_in_cell(data: u64, col: u64) -> u64 {
     match col {
-        0 => data & !CLEAR_ZERO >> ZERO_SHIFT,
-        1 => data & !CLEAR_ONE >> ONE_SHIFT,
-        2 => data & !CLEAR_TWO >> TWO_SHIFT,
-        3 => data & !CLEAR_THREE >> THREE_SHIFT,
-        4 => data & !CLEAR_FOUR >> FOUR_SHIFT,
-        5 => data & !CLEAR_FIVE >> FIVE_SHIFT,
-        6 => data & !CLEAR_SIX >> SIX_SHIFT,
-        7 => data & !CLEAR_SEVEN >> SEVEN_SHIFT,
-        8 => data & !CLEAR_EIGHT >> EIGHT_SHIFT,
+        0 => data & !CLEAR_ZERO  >> SHIFT_ZERO,
+        1 => data & !CLEAR_ONE   >> SHIFT_ONE,
+        2 => data & !CLEAR_TWO   >> SHIFT_TWO,
+        3 => data & !CLEAR_THREE >> SHIFT_THREE,
+        4 => data & !CLEAR_FOUR  >> SHIFT_FOUR,
+        5 => data & !CLEAR_FIVE  >> SHIFT_FIVE,
+        6 => data & !CLEAR_SIX   >> SHIFT_SIX,
+        7 => data & !CLEAR_SEVEN >> SHIFT_SEVEN,
+        8 => data & !CLEAR_EIGHT >> SHIFT_EIGHT,
         _ => panic!("value_in_cell(): Attempted to get value of cell that is not on board."),
     }
 }
@@ -150,15 +150,15 @@ mod tests {
         const FOUR_SET_BITS: u64 =
             0b000000000000000000000000000000000000000000000000000000000000_1111;
         assert_eq!(
-            as_row(NINE_SET_BITS),
+            to_row(NINE_SET_BITS),
             0b0_111111111_000000000_000000000_0000_0000_0000_0000_0000_0000_0000_0000_0000,
         );
         assert_eq!(
-            as_col(NINE_SET_BITS),
+            to_col(NINE_SET_BITS),
             0b0_000000000_111111111_000000000_0000_0000_0000_0000_0000_0000_0000_0000_0000,
         );
         assert_eq!(
-            as_box(NINE_SET_BITS),
+            to_box(NINE_SET_BITS),
             0b0_000000000_000000000_111111111_0000_0000_0000_0000_0000_0000_0000_0000_0000,
         );
         assert_eq!(
@@ -204,15 +204,15 @@ mod tests {
         const NINE_UNSET_BITS: u64 =
             0b1111111111111111111111111111111111111111111111111111111_000000000;
         assert_eq!(
-            as_not_row(NINE_UNSET_BITS),
+            to_row_inverse(NINE_UNSET_BITS),
             0b1_000000000_111111111_111111111_1111_1111_1111_1111_1111_1111_1111_1111_1111,
         );
         assert_eq!(
-            as_not_col(NINE_UNSET_BITS),
+            to_col_inverse(NINE_UNSET_BITS),
             0b1_111111111_000000000_111111111_1111_1111_1111_1111_1111_1111_1111_1111_1111,
         );
         assert_eq!(
-            as_not_box(NINE_UNSET_BITS),
+            to_box_inverse(NINE_UNSET_BITS),
             0b1_111111111_111111111_000000000_1111_1111_1111_1111_1111_1111_1111_1111_1111,
         );
     }

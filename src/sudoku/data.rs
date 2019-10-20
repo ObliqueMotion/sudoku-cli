@@ -1,5 +1,5 @@
 use crate::sudoku::bitwise::{
-    as_bit, as_box, as_col, as_not_bit, as_not_box, as_not_col, as_not_row, as_row, clear_cell,
+    as_bit, to_box, to_col, as_not_bit, to_box_inverse, to_col_inverse, to_row_inverse, to_row, clear_cell,
     to_cell, value_in_cell,
 };
 use std::cell::Cell;
@@ -22,27 +22,27 @@ impl SudokuData {
     }
 
     pub fn mark_in_row(&self, value: u64) {
-        self.0.set(self.0.get() | as_row(as_bit(value)));
+        self.0.set(self.0.get() | to_row(as_bit(value)));
     }
 
     pub fn mark_in_col(&self, value: u64) {
-        self.0.set(self.0.get() | as_col(as_bit(value)));
+        self.0.set(self.0.get() | to_col(as_bit(value)));
     }
 
     pub fn mark_in_box(&self, value: u64) {
-        self.0.set(self.0.get() | as_box(as_bit(value)));
+        self.0.set(self.0.get() | to_box(as_bit(value)));
     }
 
     pub fn unmark_from_row(&self, value: u64) {
-        self.0.set(self.0.get() & as_not_row(as_not_bit(value)));
+        self.0.set(self.0.get() & to_row_inverse(as_not_bit(value)));
     }
 
     pub fn unmark_from_col(&self, value: u64) {
-        self.0.set(self.0.get() & as_not_col(as_not_bit(value)));
+        self.0.set(self.0.get() & to_col_inverse(as_not_bit(value)));
     }
 
     pub fn unmark_from_box(&self, value: u64) {
-        self.0.set(self.0.get() & as_not_box(as_not_bit(value)));
+        self.0.set(self.0.get() & to_box_inverse(as_not_bit(value)));
     }
 
     fn format_cell(&self, col: u64) -> &str {
