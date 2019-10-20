@@ -66,7 +66,7 @@ pub fn as_bit_inverse(x: u64) -> u64 {
         7 => !SEVEN,
         8 => !EIGHT,
         9 => !NINE,
-        _ => panic!("as_not_bit(): Attempted to convert invalid number to bit."),
+        _ => panic!("as_bit_inverse(): Attempted to convert invalid number to bit."),
     }
 }
 
