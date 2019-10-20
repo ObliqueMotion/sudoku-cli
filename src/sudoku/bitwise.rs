@@ -125,7 +125,7 @@ pub fn value_in_square(data: u64, col: usize) -> u64 {
     }
 }
 
-pub fn clear_square(data: u64, col: usize) -> u64 {
+pub fn zero_out_square(data: u64, col: usize) -> u64 {
     match col {
         0 => data & CLEAR_ZERO,
         1 => data & CLEAR_ONE,
@@ -221,39 +221,39 @@ mod tests {
         const ALL_SET_BITS: u64 =
             0b1_111111111_111111111_111111111_1111_1111_1111_1111_1111_1111_1111_1111_1111;
         assert_eq!(
-            clear_square(ALL_SET_BITS, 0),
+            zero_out_square(ALL_SET_BITS, 0),
             0b1_111111111_111111111_111111111_0000_1111_1111_1111_1111_1111_1111_1111_1111,
         );
         assert_eq!(
-            clear_square(ALL_SET_BITS, 1),
+            zero_out_square(ALL_SET_BITS, 1),
             0b1_111111111_111111111_111111111_1111_0000_1111_1111_1111_1111_1111_1111_1111,
         );
         assert_eq!(
-            clear_square(ALL_SET_BITS, 2),
+            zero_out_square(ALL_SET_BITS, 2),
             0b1_111111111_111111111_111111111_1111_1111_0000_1111_1111_1111_1111_1111_1111,
         );
         assert_eq!(
-            clear_square(ALL_SET_BITS, 3),
+            zero_out_square(ALL_SET_BITS, 3),
             0b1_111111111_111111111_111111111_1111_1111_1111_0000_1111_1111_1111_1111_1111,
         );
         assert_eq!(
-            clear_square(ALL_SET_BITS, 4),
+            zero_out_square(ALL_SET_BITS, 4),
             0b1_111111111_111111111_111111111_1111_1111_1111_1111_0000_1111_1111_1111_1111,
         );
         assert_eq!(
-            clear_square(ALL_SET_BITS, 5),
+            zero_out_square(ALL_SET_BITS, 5),
             0b1_111111111_111111111_111111111_1111_1111_1111_1111_1111_0000_1111_1111_1111,
         );
         assert_eq!(
-            clear_square(ALL_SET_BITS, 6),
+            zero_out_square(ALL_SET_BITS, 6),
             0b1_111111111_111111111_111111111_1111_1111_1111_1111_1111_1111_0000_1111_1111,
         );
         assert_eq!(
-            clear_square(ALL_SET_BITS, 7),
+            zero_out_square(ALL_SET_BITS, 7),
             0b1_111111111_111111111_111111111_1111_1111_1111_1111_1111_1111_1111_0000_1111,
         );
         assert_eq!(
-            clear_square(ALL_SET_BITS, 8),
+            zero_out_square(ALL_SET_BITS, 8),
             0b1_111111111_111111111_111111111_1111_1111_1111_1111_1111_1111_1111_1111_0000,
         );
     }

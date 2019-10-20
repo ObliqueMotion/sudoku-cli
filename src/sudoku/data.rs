@@ -1,7 +1,4 @@
-use crate::sudoku::bitwise::{
-    as_bit, as_bit_inverse, clear_square, to_box, to_box_inverse, to_square, to_col, to_col_inverse,
-    to_row, to_row_inverse, value_in_square,
-};
+use crate::sudoku::bitwise::{as_bit, as_bit_inverse, to_box, to_box_inverse, to_square, to_col, to_col_inverse, to_row, to_row_inverse, value_in_square, zero_out_square};
 use std::cell::Cell;
 use std::fmt;
 use crate::sudoku::bitwise;
@@ -15,7 +12,7 @@ impl SudokuData {
     }
 
     pub fn clear_square(&self, col: usize) {
-        self.0.set(bitwise::clear_square(self.0.get(), col));
+        self.0.set(zero_out_square(self.0.get(), col));
     }
 
     pub fn fill_square(&self, value: u64, col: usize) {
