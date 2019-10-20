@@ -29,7 +29,7 @@ fn box_index(row: usize, col: usize) -> usize {
 }
 
 impl SudokuBoard {
-    pub fn insert(self, value: u64, row: usize, col: usize) -> Self {
+    pub fn insert(self, value: usize, row: usize, col: usize) -> Self {
         if value == 0 {
             return self;
         }
@@ -79,7 +79,7 @@ impl<B: Borrow<str>> From<B> for SudokuBoard {
             .filter_map(|c| c.to_digit(10).or(Some(0)))
             .zip(board_indices())
             .fold(SudokuBoard::default(), |board, (value, (row, col))| {
-                board.insert(value.into(), row, col)
+                board.insert(value as usize, row, col)
             })
     }
 }

@@ -1,9 +1,11 @@
 use crate::sudoku::bitwise::{
-    as_bit, as_bit_inverse, to_box, to_box_inverse, to_col, to_col_inverse, to_row, to_row_inverse,
-    to_square, value_in_square, zero_out_square,
+    as_bit, as_bit_inverse, shift_to_box, shift_to_box_inverse, shift_to_col, shift_to_col_inverse, shift_to_row, shift_to_row_inverse,
+    shift_to_square, value_in_square, zero_out_square,
 };
 use std::fmt;
 use std::cell::Cell;
+
+static OUTPUT: [&str;10] = [" ", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
 
 #[derive(Clone, Debug, Default)]
 pub struct SudokuData(Cell<u64>);
@@ -17,51 +19,40 @@ impl SudokuData {
         self.0.set(zero_out_square(self.0.get(), col));
     }
 
-    pub fn fill_square(&self, value: u64, col: usize) {
-        self.0.set(self.0.get() | to_square(value, col))
+    pub fn fill_square(&self, value: usize, col: usize) {
+        self.0.set(self.0.get() | shift_to_square(value, col))
     }
 
-    pub fn mark_in_row(&self, value: u64) {
-        self.0.set(self.0.get() | to_row(as_bit(value)));
+    pub fn mark_in_row(&self, value: usize) {
+        self.0.set(self.0.get() | shift_to_row(as_bit(value)));
     }
 
-    pub fn mark_in_col(&self, value: u64) {
-        self.0.set(self.0.get() | to_col(as_bit(value)));
+    pub fn mark_in_col(&self, value: usize) {
+        self.0.set(self.0.get() | shift_to_col(as_bit(value)));
     }
 
-    pub fn mark_in_box(&self, value: u64) {
-        self.0.set(self.0.get() | to_box(as_bit(value)));
+    pub fn mark_in_box(&self, value: usize) {
+        self.0.set(self.0.get() | shift_to_box(as_bit(value)));
     }
 
-    pub fn unmark_from_row(&self, value: u64) {
+    pub fn unmark_from_row(&self, value: usize) {
         self.0
-            .set(self.0.get() & to_row_inverse(as_bit_inverse(value)));
+            .set(self.0.get() & shift_to_row_inverse(as_bit_inverse(value)));
     }
 
-    pub fn unmark_from_col(&self, value: u64) {
+    pub fn unmark_from_col(&self, value: usize) {
         self.0
-            .set(self.0.get() & to_col_inverse(as_bit_inverse(value)));
+            .set(self.0.get() & shift_to_col_inverse(as_bit_inverse(value)));
     }
 
-    pub fn unmark_from_box(&self, value: u64) {
+    pub fn unmark_from_box(&self, value: usize) {
         self.0
-            .set(self.0.get() & to_box_inverse(as_bit_inverse(value)));
+            .set(self.0.get() & shift_to_box_inverse(as_bit_inverse(value)));
     }
+
 
     fn format_square(&self, col: usize) -> &str {
-        match value_in_square(self.0.get(), col) {
-            0 => " ",
-            1 => "1",
-            2 => "2",
-            3 => "3",
-            4 => "4",
-            5 => "5",
-            6 => "6",
-            7 => "7",
-            8 => "8",
-            9 => "9",
-            _ => panic!("format_square(): Value not in range (1..=9) found on board."),
-        }
+        OUTPUT[value_in_square(self.0.get(), col) as usize]
     }
 }
 
