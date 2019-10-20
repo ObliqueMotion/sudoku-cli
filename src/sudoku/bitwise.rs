@@ -142,6 +142,42 @@ pub const fn to_eight_slot(x: u64) -> u64 {
     x << EIGHT_SHIFT
 }
 
+pub const fn from_zero_slot(x: u64) -> u64 {
+    x >> ZERO_SHIFT
+}
+
+pub const fn from_one_slot(x: u64) -> u64 {
+    x >> ONE_SHIFT
+}
+
+pub const fn from_two_slot(x: u64) -> u64 {
+    x >> TWO_SHIFT
+}
+
+pub const fn from_three_slot(x: u64) -> u64 {
+    x >> THREE_SHIFT
+}
+
+pub const fn from_four_slot(x: u64) -> u64 {
+    x >> FOUR_SHIFT
+}
+
+pub const fn from_five_slot(x: u64) -> u64 {
+    x >> FIVE_SHIFT
+}
+
+pub const fn from_six_slot(x: u64) -> u64 {
+    x >> SIX_SHIFT
+}
+
+pub const fn from_seven_slot(x: u64) -> u64 {
+    x >> SEVEN_SHIFT
+}
+
+pub const fn from_eight_slot(x: u64) -> u64 {
+    x >> EIGHT_SHIFT
+}
+
 pub const fn clear_zero_slot(x: u64) -> u64 {
     x & CLEAR_ZERO
 }
@@ -176,6 +212,42 @@ pub const fn clear_seven_slot(x: u64) -> u64 {
 
 pub const fn clear_eight_slot(x: u64) -> u64 {
     x & CLEAR_EIGHT
+}
+
+pub const fn only_zero_slot(x: u64) -> u64 {
+    x & !CLEAR_ZERO
+}
+
+pub const fn only_one_slot(x: u64) -> u64 {
+    x & !CLEAR_ONE
+}
+
+pub const fn only_two_slot(x: u64) -> u64 {
+    x & !CLEAR_TWO
+}
+
+pub const fn only_three_slot(x: u64) -> u64 {
+    x & !CLEAR_THREE
+}
+
+pub const fn only_four_slot(x: u64) -> u64 {
+    x & !CLEAR_FOUR
+}
+
+pub const fn only_five_slot(x: u64) -> u64 {
+    x & !CLEAR_FIVE
+}
+
+pub const fn only_six_slot(x: u64) -> u64 {
+    x & !CLEAR_SIX
+}
+
+pub const fn only_seven_slot(x: u64) -> u64 {
+    x & !CLEAR_SEVEN
+}
+
+pub const fn only_eight_slot(x: u64) -> u64 {
+    x & !CLEAR_EIGHT
 }
 
 #[cfg(test)]
@@ -295,6 +367,32 @@ mod tests {
         assert_eq!(
             clear_eight_slot(ALL_SET_BITS),
             0b1_111111111_111111111_111111111_1111_1111_1111_1111_1111_1111_1111_1111_0000,
+        );
+    }
+
+    #[test]
+    fn isolations() {
+        const ALL_BITS_SET: u64 =
+            0b1_111111111_111111111_111111111_1111_1111_1111_1111_1111_1111_1111_1111_1111;
+        const FOUR_BITS_SET: u64 =
+            0b0_000000000_000000000_000000000_0000_0000_0000_0000_0000_0000_0000_0000_1111;
+        assert_eq!(FOUR_BITS_SET, from_zero_slot(only_zero_slot(ALL_BITS_SET)),);
+        assert_eq!(FOUR_BITS_SET, from_one_slot(only_one_slot(ALL_BITS_SET)),);
+        assert_eq!(FOUR_BITS_SET, from_two_slot(only_two_slot(ALL_BITS_SET)),);
+        assert_eq!(
+            FOUR_BITS_SET,
+            from_three_slot(only_three_slot(ALL_BITS_SET)),
+        );
+        assert_eq!(FOUR_BITS_SET, from_four_slot(only_four_slot(ALL_BITS_SET)),);
+        assert_eq!(FOUR_BITS_SET, from_five_slot(only_five_slot(ALL_BITS_SET)),);
+        assert_eq!(FOUR_BITS_SET, from_six_slot(only_six_slot(ALL_BITS_SET)),);
+        assert_eq!(
+            FOUR_BITS_SET,
+            from_seven_slot(only_seven_slot(ALL_BITS_SET)),
+        );
+        assert_eq!(
+            FOUR_BITS_SET,
+            from_eight_slot(only_eight_slot(ALL_BITS_SET)),
         );
     }
 }

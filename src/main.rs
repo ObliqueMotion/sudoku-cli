@@ -1,5 +1,8 @@
 pub mod sudoku;
 
+use sudoku::board::SudokuBoard;
+
 fn main() {
-    println!("Hello, world!");
+    let board = SudokuBoard::default();
+    println!("{}", board);
 }

@@ -1,5 +1,7 @@
 use super::bitwise;
+use crate::sudoku::bitwise::{from_zero_slot, only_zero_slot};
 use std::cell::Cell;
+use std::fmt;
 
 #[derive(Clone, Debug, Default)]
 pub struct SudokuData(Cell<u64>);
@@ -113,6 +115,79 @@ impl SudokuData {
     pub fn remove_from_box(&self, x: u64) {
         self.0
             .set(self.0.get() & bitwise::as_not_box(bitwise::as_not_bit(x)));
+    }
+
+    fn format_zero_slot(&self) -> &str {
+        let data = self.0.get();
+        let data = bitwise::from_zero_slot(bitwise::only_zero_slot(data));
+        if 0 == data { " " } else { "0" }
+    }
+
+    fn format_one_slot(&self) -> &str {
+        let data = self.0.get();
+        let data = bitwise::from_one_slot(bitwise::only_one_slot(data));
+        if 0 == data { " " } else { "1" }
+    }
+
+    fn format_two_slot(&self) -> &str {
+        let data = self.0.get();
+        let data = bitwise::from_two_slot(bitwise::only_two_slot(data));
+        if 0 == data { " " } else { "2" }
+    }
+
+    fn format_three_slot(&self) -> &str {
+        let data = self.0.get();
+        let data = bitwise::from_three_slot(bitwise::only_three_slot(data));
+        if 0 == data { " " } else { "3" }
+    }
+
+    fn format_four_slot(&self) -> &str {
+        let data = self.0.get();
+        let data = bitwise::from_four_slot(bitwise::only_four_slot(data));
+        if 0 == data { " " } else { "4" }
+    }
+
+    fn format_five_slot(&self) -> &str {
+        let data = self.0.get();
+        let data = bitwise::from_five_slot(bitwise::only_five_slot(data));
+        if 0 == data { " " } else { "5" }
+    }
+
+    fn format_six_slot(&self) -> &str {
+        let data = self.0.get();
+        let data = bitwise::from_six_slot(bitwise::only_six_slot(data));
+        if 0 == data { " " } else { "6" }
+    }
+
+    fn format_seven_slot(&self) -> &str {
+        let data = self.0.get();
+        let data = bitwise::from_seven_slot(bitwise::only_seven_slot(data));
+        if 0 == data { " " } else { "7" }
+    }
+
+    fn format_eight_slot(&self) -> &str {
+        let data = self.0.get();
+        let data = bitwise::from_eight_slot(bitwise::only_eight_slot(data));
+        if 0 == data { " " } else { "8" }
+    }
+}
+
+impl fmt::Display for SudokuData {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let data = self.0.get();
+        write!(
+            f,
+            "│ {} {} {} │ {} {} {} │ {} {} {} │",
+            self.format_zero_slot(),
+            self.format_one_slot(),
+            self.format_two_slot(),
+            self.format_three_slot(),
+            self.format_four_slot(),
+            self.format_five_slot(),
+            self.format_six_slot(),
+            self.format_seven_slot(),
+            self.format_eight_slot(),
+        )
     }
 }
 
