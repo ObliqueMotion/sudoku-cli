@@ -196,7 +196,7 @@ mod tests {
     }
 
     #[test]
-    fn row_manipulation() {
+    fn mark_rows() {
         let data = SudokuData::default();
         data.mark_in_row(1);
         data.mark_in_row(3);
@@ -233,7 +233,7 @@ mod tests {
     }
 
     #[test]
-    fn col_manipulation() {
+    fn mark_cols() {
         let data = SudokuData::default();
         data.mark_in_col(1);
         data.mark_in_col(3);
@@ -269,7 +269,7 @@ mod tests {
     }
 
     #[test]
-    fn box_manipulation() {
+    fn mark_boxes() {
         let data = SudokuData::default();
         data.mark_in_box(1);
         data.mark_in_box(3);

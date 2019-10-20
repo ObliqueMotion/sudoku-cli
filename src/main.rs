@@ -1,7 +1,7 @@
 pub mod sudoku;
 use sudoku::board::SudokuBoard;
 
-static HARD_PUZZLE: &str = include_str!("../puzzles/hard");
+static HARD_PUZZLE: &str = include_str!("../puzzles/hard2");
 
 fn main() {
     let board = SudokuBoard::default()
