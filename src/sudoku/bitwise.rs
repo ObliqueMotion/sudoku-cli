@@ -8,6 +8,11 @@ const SEVEN: u64 = 0b000000100;
 const EIGHT: u64 = 0b000000010;
 const NINE:  u64 = 0b000000001;
 
+// The following is the mapping of information onto a 64-vit integer:
+//───────────────────────────────────────────────────────────────────────────────────────────────────────
+// 0b0_______000000000_000000000_000000000___0000___0000___0000___0000___0000___0000___0000___0000___0000
+// | unused |   row   |   col   |   box    | zero | one  | two  | three| four | five |  six | seven| eight
+
 const SHIFT_EIGHT: u64 = 0;
 const SHIFT_SEVEN: u64 = 4;
 const SHIFT_SIX:   u64 = 8;
