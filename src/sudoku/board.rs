@@ -31,4 +31,3 @@ impl fmt::Display for SudokuBoard {
         writeln!(f, "└───────┴───────┴───────┘")
     }
 }
-

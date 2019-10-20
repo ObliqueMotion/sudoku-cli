@@ -376,6 +376,7 @@ mod tests {
             0b1_111111111_111111111_111111111_1111_1111_1111_1111_1111_1111_1111_1111_1111;
         const FOUR_BITS_SET: u64 =
             0b0_000000000_000000000_000000000_0000_0000_0000_0000_0000_0000_0000_0000_1111;
+
         assert_eq!(FOUR_BITS_SET, from_zero_slot(only_zero_slot(ALL_BITS_SET)),);
         assert_eq!(FOUR_BITS_SET, from_one_slot(only_one_slot(ALL_BITS_SET)),);
         assert_eq!(FOUR_BITS_SET, from_two_slot(only_two_slot(ALL_BITS_SET)),);
@@ -383,6 +384,7 @@ mod tests {
             FOUR_BITS_SET,
             from_three_slot(only_three_slot(ALL_BITS_SET)),
         );
+
         assert_eq!(FOUR_BITS_SET, from_four_slot(only_four_slot(ALL_BITS_SET)),);
         assert_eq!(FOUR_BITS_SET, from_five_slot(only_five_slot(ALL_BITS_SET)),);
         assert_eq!(FOUR_BITS_SET, from_six_slot(only_six_slot(ALL_BITS_SET)),);
@@ -390,6 +392,7 @@ mod tests {
             FOUR_BITS_SET,
             from_seven_slot(only_seven_slot(ALL_BITS_SET)),
         );
+
         assert_eq!(
             FOUR_BITS_SET,
             from_eight_slot(only_eight_slot(ALL_BITS_SET)),
