@@ -146,10 +146,8 @@ mod tests {
 
     #[test]
     fn shifts() {
-        const NINE_SET_BITS: u64 =
-            0b111111111;
-        const FOUR_SET_BITS: u64 =
-            0b1111;
+        const FOUR_SET_BITS: u64 = 0b1111;
+        const NINE_SET_BITS: u64 = 0b111111111;
         assert_eq!(
             to_row(NINE_SET_BITS),
             0b0_111111111_000000000_000000000_0000_0000_0000_0000_0000_0000_0000_0000_0000,
