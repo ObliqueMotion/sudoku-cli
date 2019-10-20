@@ -1,9 +1,7 @@
-use crate::sudoku::bitwise::{
-    as_bit, as_bit_inverse, clear_cell, to_box, to_box_inverse, to_cell, to_col, to_col_inverse,
-    to_row, to_row_inverse, value_in_cell,
-};
+use crate::sudoku::bitwise::{as_bit, as_bit_inverse, to_box, to_box_inverse, to_square, to_col, to_col_inverse, to_row, to_row_inverse, value_in_square, zero_out_square};
 use std::cell::Cell;
 use std::fmt;
+use crate::sudoku::bitwise;
 
 #[derive(Clone, Debug, Default)]
 pub struct SudokuData(Cell<u64>);
@@ -13,12 +11,12 @@ impl SudokuData {
         self.0.set(0);
     }
 
-    pub fn clear_cell(&self, col: usize) {
-        self.0.set(clear_cell(self.0.get(), col));
+    pub fn clear_square(&self, col: usize) {
+        self.0.set(zero_out_square(self.0.get(), col));
     }
 
-    pub fn set_cell(&self, value: u64, col: usize) {
-        self.0.set(self.0.get() | to_cell(value, col))
+    pub fn fill_square(&self, value: u64, col: usize) {
+        self.0.set(self.0.get() | to_square(value, col))
     }
 
     pub fn mark_in_row(&self, value: u64) {
@@ -48,8 +46,8 @@ impl SudokuData {
             .set(self.0.get() & to_box_inverse(as_bit_inverse(value)));
     }
 
-    fn format_cell(&self, col: usize) -> &str {
-        match value_in_cell(self.0.get(), col) {
+    fn format_square(&self, col: usize) -> &str {
+        match value_in_square(self.0.get(), col) {
             0 => " ",
             1 => "1",
             2 => "2",
@@ -60,7 +58,7 @@ impl SudokuData {
             7 => "7",
             8 => "8",
             9 => "9",
-            _ => panic!("format_cell(): Value not in range (1..=9) found on board."),
+            _ => panic!("format_square(): Value not in range (1..=9) found on board."),
         }
     }
 }
@@ -70,15 +68,15 @@ impl fmt::Display for SudokuData {
         write!(
             f,
             "║ {} │ {} │ {} ║ {} │ {} │ {} ║ {} │ {} │ {} ║",
-            self.format_cell(0),
-            self.format_cell(1),
-            self.format_cell(2),
-            self.format_cell(3),
-            self.format_cell(4),
-            self.format_cell(5),
-            self.format_cell(6),
-            self.format_cell(7),
-            self.format_cell(8),
+            self.format_square(0),
+            self.format_square(1),
+            self.format_square(2),
+            self.format_square(3),
+            self.format_square(4),
+            self.format_square(5),
+            self.format_square(6),
+            self.format_square(7),
+            self.format_square(8),
         )
     }
 }
@@ -90,108 +88,108 @@ mod tests {
     #[test]
     fn zero_slot() {
         let data = SudokuData::default();
-        data.set_cell(0b0101, 0);
+        data.fill_square(0b0101, 0);
         assert_eq!(
             data.0.get(),
             0b0_000000000_0000000000_000000000_0101_0000_0000_0000_0000_0000_0000_0000_0000,
         );
-        data.clear_cell(0);
+        data.clear_square(0);
         assert_eq!(data.0.get(), 0);
     }
 
     #[test]
     fn one_slot() {
         let data = SudokuData::default();
-        data.set_cell(0b0101, 1);
+        data.fill_square(0b0101, 1);
         assert_eq!(
             data.0.get(),
             0b0_000000000_0000000000_000000000_0000_0101_0000_0000_0000_0000_0000_0000_0000,
         );
-        data.clear_cell(1);
+        data.clear_square(1);
         assert_eq!(data.0.get(), 0);
     }
 
     #[test]
     fn two_slot() {
         let data = SudokuData::default();
-        data.set_cell(0b0101, 2);
+        data.fill_square(0b0101, 2);
         assert_eq!(
             data.0.get(),
             0b0_000000000_0000000000_000000000_0000_0000_0101_0000_0000_0000_0000_0000_0000,
         );
-        data.clear_cell(2);
+        data.clear_square(2);
         assert_eq!(data.0.get(), 0);
     }
 
     #[test]
     fn three_slot() {
         let data = SudokuData::default();
-        data.set_cell(0b0101, 3);
+        data.fill_square(0b0101, 3);
         assert_eq!(
             data.0.get(),
             0b0_000000000_0000000000_000000000_0000_0000_0000_0101_0000_0000_0000_0000_0000,
         );
-        data.clear_cell(3);
+        data.clear_square(3);
         assert_eq!(data.0.get(), 0);
     }
 
     #[test]
     fn four_slot() {
         let data = SudokuData::default();
-        data.set_cell(0b0101, 4);
+        data.fill_square(0b0101, 4);
         assert_eq!(
             data.0.get(),
             0b0_000000000_0000000000_000000000_0000_0000_0000_0000_0101_0000_0000_0000_0000,
         );
-        data.clear_cell(4);
+        data.clear_square(4);
         assert_eq!(data.0.get(), 0);
     }
 
     #[test]
     fn five_slot() {
         let data = SudokuData::default();
-        data.set_cell(0b0101, 5);
+        data.fill_square(0b0101, 5);
         assert_eq!(
             data.0.get(),
             0b0_000000000_0000000000_000000000_0000_0000_0000_0000_0000_0101_0000_0000_0000,
         );
-        data.clear_cell(5);
+        data.clear_square(5);
         assert_eq!(data.0.get(), 0);
     }
 
     #[test]
     fn six_slot() {
         let data = SudokuData::default();
-        data.set_cell(0b0101, 6);
+        data.fill_square(0b0101, 6);
         assert_eq!(
             data.0.get(),
             0b0_000000000_0000000000_000000000_0000_0000_0000_0000_0000_0000_0101_0000_0000,
         );
-        data.clear_cell(6);
+        data.clear_square(6);
         assert_eq!(data.0.get(), 0);
     }
 
     #[test]
     fn seven_slot() {
         let data = SudokuData::default();
-        data.set_cell(0b0101, 7);
+        data.fill_square(0b0101, 7);
         assert_eq!(
             data.0.get(),
             0b0_000000000_0000000000_000000000_0000_0000_0000_0000_0000_0000_0000_0101_0000,
         );
-        data.clear_cell(7);
+        data.clear_square(7);
         assert_eq!(data.0.get(), 0);
     }
 
     #[test]
     fn eight_slot() {
         let data = SudokuData::default();
-        data.set_cell(0b0101, 8);
+        data.fill_square(0b0101, 8);
         assert_eq!(
             data.0.get(),
             0b0_000000000_0000000000_000000000_0000_0000_0000_0000_0000_0000_0000_0000_0101,
         );
-        data.clear_cell(8);
+        data.clear_square(8);
         assert_eq!(data.0.get(), 0);
     }
 
