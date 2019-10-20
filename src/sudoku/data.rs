@@ -1,5 +1,5 @@
 use crate::sudoku::bitwise::{
-    as_bit, to_box, to_col, as_not_bit, to_box_inverse, to_col_inverse, to_row_inverse, to_row, clear_cell,
+    as_bit, to_box, to_col, as_bit_inverse, to_box_inverse, to_col_inverse, to_row_inverse, to_row, clear_cell,
     to_cell, value_in_cell,
 };
 use std::cell::Cell;
@@ -34,15 +34,15 @@ impl SudokuData {
     }
 
     pub fn unmark_from_row(&self, value: u64) {
-        self.0.set(self.0.get() & to_row_inverse(as_not_bit(value)));
+        self.0.set(self.0.get() & to_row_inverse(as_bit_inverse(value)));
     }
 
     pub fn unmark_from_col(&self, value: u64) {
-        self.0.set(self.0.get() & to_col_inverse(as_not_bit(value)));
+        self.0.set(self.0.get() & to_col_inverse(as_bit_inverse(value)));
     }
 
     pub fn unmark_from_box(&self, value: u64) {
-        self.0.set(self.0.get() & to_box_inverse(as_not_bit(value)));
+        self.0.set(self.0.get() & to_box_inverse(as_bit_inverse(value)));
     }
 
     fn format_cell(&self, col: u64) -> &str {

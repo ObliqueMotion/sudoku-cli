@@ -55,7 +55,7 @@ pub fn as_bit(x: u64) -> u64 {
     }
 }
 
-pub fn as_not_bit(x: u64) -> u64 {
+pub fn as_bit_inverse(x: u64) -> u64 {
     match x {
         1 => !ONE,
         2 => !TWO,
