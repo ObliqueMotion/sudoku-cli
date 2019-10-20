@@ -7,6 +7,5 @@ fn main() {
     board.insert(5, 0, 3);
     board.insert(7, 3, 1);
     board.insert(2, 5, 7);
-    dbg!(&board);
-    println!("{}", board);
+    println!("\n{}", board);
 }

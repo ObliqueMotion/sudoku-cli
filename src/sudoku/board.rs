@@ -41,24 +41,24 @@ impl SudokuBoard {
 
 impl fmt::Display for SudokuBoard {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        writeln!(f, "┏━━━┯━━━┯━━━┳━━━┯━━━┯━━━┳━━━┯━━━┯━━━┓")?;
-        writeln!(f, "{}", self.state[0])?;
-        writeln!(f, "┠───┼───┼───╂───┼───┼───╂───┼───┼───┨")?;
-        writeln!(f, "{}", self.state[1])?;
-        writeln!(f, "┠───┼───┼───╂───┼───┼───╂───┼───┼───┨")?;
-        writeln!(f, "{}", self.state[2])?;
-        writeln!(f, "┣━━━┿━━━┿━━━╋━━━┿━━━┿━━━╋━━━┿━━━┿━━━┫")?;
-        writeln!(f, "{}", self.state[3])?;
-        writeln!(f, "┠───┼───┼───╂───┼───┼───╂───┼───┼───┨")?;
-        writeln!(f, "{}", self.state[4])?;
-        writeln!(f, "┠───┼───┼───╂───┼───┼───╂───┼───┼───┨")?;
-        writeln!(f, "{}", self.state[5])?;
-        writeln!(f, "┣━━━┿━━━┿━━━╋━━━┿━━━┿━━━╋━━━┿━━━┿━━━┫")?;
-        writeln!(f, "{}", self.state[6])?;
-        writeln!(f, "┠───┼───┼───╂───┼───┼───╂───┼───┼───┨")?;
-        writeln!(f, "{}", self.state[7])?;
-        writeln!(f, "┠───┼───┼───╂───┼───┼───╂───┼───┼───┨")?;
-        writeln!(f, "{}", self.state[8])?;
-        writeln!(f, "┗━━━┷━━━┷━━━┻━━━┷━━━┷━━━┻━━━┷━━━┷━━━┛")
+        writeln!(f, "  ╔═══╤═══╤═══╦═══╤═══╤═══╦═══╤═══╤═══╗")?;
+        writeln!(f, "  {}", self.state[0])?;
+        writeln!(f, "  ╟───┼───┼───╫───┼───┼───╫───┼───┼───╢")?;
+        writeln!(f, "  {}", self.state[1])?;
+        writeln!(f, "  ╟───┼───┼───╫───┼───┼───╫───┼───┼───╢")?;
+        writeln!(f, "  {}", self.state[2])?;
+        writeln!(f, "  ╠═══╪═══╪═══╬═══╪═══╪═══╬═══╪═══╪═══╣")?;
+        writeln!(f, "  {}", self.state[3])?;
+        writeln!(f, "  ╟───┼───┼───╫───┼───┼───╫───┼───┼───╢")?;
+        writeln!(f, "  {}", self.state[4])?;
+        writeln!(f, "  ╟───┼───┼───╫───┼───┼───╫───┼───┼───╢")?;
+        writeln!(f, "  {}", self.state[5])?;
+        writeln!(f, "  ╠═══╪═══╪═══╬═══╪═══╪═══╬═══╪═══╪═══╣")?;
+        writeln!(f, "  {}", self.state[6])?;
+        writeln!(f, "  ╟───┼───┼───╫───┼───┼───╫───┼───┼───╢")?;
+        writeln!(f, "  {}", self.state[7])?;
+        writeln!(f, "  ╟───┼───┼───╫───┼───┼───╫───┼───┼───╢")?;
+        writeln!(f, "  {}", self.state[8])?;
+        writeln!(f, "  ╚═══╧═══╧═══╩═══╧═══╧═══╩═══╧═══╧═══╝")
     }
 }
