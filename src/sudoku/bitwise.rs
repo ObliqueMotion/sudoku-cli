@@ -86,20 +86,20 @@ pub const fn as_row(x: u64) -> u64 {
     x << ROW_SHIFT
 }
 
-pub const fn as_not_row(x: u64) -> u64 {
-    x << ROW_SHIFT | ((1 << ROW_SHIFT) - 1)
-}
-
 pub const fn as_col(x: u64) -> u64 {
     x << COL_SHIFT
 }
 
-pub const fn as_not_col(x: u64) -> u64 {
-    x << COL_SHIFT | ((1 << COL_SHIFT) - 1)
-}
-
 pub const fn as_box(x: u64) -> u64 {
     x << BOX_SHIFT
+}
+
+pub const fn as_not_row(x: u64) -> u64 {
+    x << ROW_SHIFT | ((1 << ROW_SHIFT) - 1)
+}
+
+pub const fn as_not_col(x: u64) -> u64 {
+    x << COL_SHIFT | ((1 << COL_SHIFT) - 1)
 }
 
 pub const fn as_not_box(x: u64) -> u64 {
@@ -110,68 +110,68 @@ pub const fn as_zero(x: u64) -> u64 {
     x << ZERO_SHIFT
 }
 
-pub const fn clear_zero(x: u64) -> u64 {
-    x & CLEAR_ZERO
-}
-
 pub const fn as_one(x: u64) -> u64 {
     x << ONE_SHIFT
-}
-
-pub const fn clear_one(x: u64) -> u64 {
-    x & CLEAR_ONE
 }
 
 pub const fn as_two(x: u64) -> u64 {
     x << TWO_SHIFT
 }
 
-pub const fn clear_two(x: u64) -> u64 {
-    x & CLEAR_TWO
-}
-
 pub const fn as_three(x: u64) -> u64 {
     x << THREE_SHIFT
-}
-
-pub const fn clear_three(x: u64) -> u64 {
-    x & CLEAR_THREE
 }
 
 pub const fn as_four(x: u64) -> u64 {
     x << FOUR_SHIFT
 }
 
-pub const fn clear_four(x: u64) -> u64 {
-    x & CLEAR_FOUR
-}
-
 pub const fn as_five(x: u64) -> u64 {
     x << FIVE_SHIFT
-}
-
-pub const fn clear_five(x: u64) -> u64 {
-    x & CLEAR_FIVE
 }
 
 pub const fn as_six(x: u64) -> u64 {
     x << SIX_SHIFT
 }
 
-pub const fn clear_six(x: u64) -> u64 {
-    x & CLEAR_SIX
-}
-
 pub const fn as_seven(x: u64) -> u64 {
     x << SEVEN_SHIFT
 }
 
-pub const fn clear_seven(x: u64) -> u64 {
-    x & CLEAR_SEVEN
-}
-
 pub const fn as_eight(x: u64) -> u64 {
     x << EIGHT_SHIFT
+}
+
+pub const fn clear_zero(x: u64) -> u64 {
+    x & CLEAR_ZERO
+}
+
+pub const fn clear_one(x: u64) -> u64 {
+    x & CLEAR_ONE
+}
+
+pub const fn clear_two(x: u64) -> u64 {
+    x & CLEAR_TWO
+}
+
+pub const fn clear_three(x: u64) -> u64 {
+    x & CLEAR_THREE
+}
+
+pub const fn clear_four(x: u64) -> u64 {
+    x & CLEAR_FOUR
+}
+
+pub const fn clear_five(x: u64) -> u64 {
+    x & CLEAR_FIVE
+}
+
+pub const fn clear_six(x: u64) -> u64 {
+    x & CLEAR_SIX
+}
+
+pub const fn clear_seven(x: u64) -> u64 {
+    x & CLEAR_SEVEN
 }
 
 pub const fn clear_eight(x: u64) -> u64 {
