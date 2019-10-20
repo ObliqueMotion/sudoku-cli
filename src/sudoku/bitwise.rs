@@ -1,5 +1,3 @@
-use std::cell::Cell;
-
 const ONE: u64 = 0b0000000000000000000000000000000000000000000000000000000_100000000;
 const TWO: u64 = 0b0000000000000000000000000000000000000000000000000000000_010000000;
 const THREE: u64 = 0b0000000000000000000000000000000000000000000000000000000_001000000;
@@ -106,149 +104,51 @@ pub const fn as_not_box(x: u64) -> u64 {
     x << BOX_SHIFT | ((1 << BOX_SHIFT) - 1)
 }
 
-pub const fn to_zero_slot(x: u64) -> u64 {
-    x << ZERO_SHIFT
+pub fn to_col(data: u64, col: u64) -> u64 {
+    match col {
+        0 => data << ZERO_SHIFT,
+        1 => data << ONE_SHIFT,
+        2 => data << TWO_SHIFT,
+        3 => data << THREE_SHIFT,
+        4 => data << FOUR_SHIFT,
+        5 => data << FIVE_SHIFT,
+        6 => data << SIX_SHIFT,
+        7 => data << SEVEN_SHIFT,
+        8 => data << EIGHT_SHIFT,
+        _ => panic!("to_col(): Attempted to shift to column outside of board."),
+    }
 }
 
-pub const fn to_one_slot(x: u64) -> u64 {
-    x << ONE_SHIFT
+pub fn value_at(data: u64, col: u64) -> u64 {
+    match col {
+        0 => data & !CLEAR_ZERO >> ZERO_SHIFT,
+        1 => data & !CLEAR_ONE >> ONE_SHIFT,
+        2 => data & !CLEAR_TWO >> TWO_SHIFT,
+        3 => data & !CLEAR_THREE >> THREE_SHIFT,
+        4 => data & !CLEAR_FOUR >> FOUR_SHIFT,
+        5 => data & !CLEAR_FIVE >> FIVE_SHIFT,
+        6 => data & !CLEAR_SIX >> SIX_SHIFT,
+        7 => data & !CLEAR_SEVEN >> SEVEN_SHIFT,
+        8 => data & !CLEAR_EIGHT >> EIGHT_SHIFT,
+        _ => panic!("value_at(): Attempted to get value of cell that is not on board."),
+    }
 }
 
-pub const fn to_two_slot(x: u64) -> u64 {
-    x << TWO_SHIFT
+pub fn clear_cell(data: u64, col: u64) -> u64 {
+    match col {
+        0 => data & CLEAR_ZERO,
+        1 => data & CLEAR_ONE,
+        2 => data & CLEAR_TWO,
+        3 => data & CLEAR_THREE,
+        4 => data & CLEAR_FOUR,
+        5 => data & CLEAR_FIVE,
+        6 => data & CLEAR_SIX,
+        7 => data & CLEAR_SEVEN,
+        8 => data & CLEAR_EIGHT,
+        _ => panic!("clear_cell(): Attempted to clear cell outside of board."),
+    }
 }
 
-pub const fn to_three_slot(x: u64) -> u64 {
-    x << THREE_SHIFT
-}
-
-pub const fn to_four_slot(x: u64) -> u64 {
-    x << FOUR_SHIFT
-}
-
-pub const fn to_five_slot(x: u64) -> u64 {
-    x << FIVE_SHIFT
-}
-
-pub const fn to_six_slot(x: u64) -> u64 {
-    x << SIX_SHIFT
-}
-
-pub const fn to_seven_slot(x: u64) -> u64 {
-    x << SEVEN_SHIFT
-}
-
-pub const fn to_eight_slot(x: u64) -> u64 {
-    x << EIGHT_SHIFT
-}
-
-pub const fn from_zero_slot(x: u64) -> u64 {
-    x >> ZERO_SHIFT
-}
-
-pub const fn from_one_slot(x: u64) -> u64 {
-    x >> ONE_SHIFT
-}
-
-pub const fn from_two_slot(x: u64) -> u64 {
-    x >> TWO_SHIFT
-}
-
-pub const fn from_three_slot(x: u64) -> u64 {
-    x >> THREE_SHIFT
-}
-
-pub const fn from_four_slot(x: u64) -> u64 {
-    x >> FOUR_SHIFT
-}
-
-pub const fn from_five_slot(x: u64) -> u64 {
-    x >> FIVE_SHIFT
-}
-
-pub const fn from_six_slot(x: u64) -> u64 {
-    x >> SIX_SHIFT
-}
-
-pub const fn from_seven_slot(x: u64) -> u64 {
-    x >> SEVEN_SHIFT
-}
-
-pub const fn from_eight_slot(x: u64) -> u64 {
-    x >> EIGHT_SHIFT
-}
-
-pub const fn clear_zero_slot(x: u64) -> u64 {
-    x & CLEAR_ZERO
-}
-
-pub const fn clear_one_slot(x: u64) -> u64 {
-    x & CLEAR_ONE
-}
-
-pub const fn clear_two_slot(x: u64) -> u64 {
-    x & CLEAR_TWO
-}
-
-pub const fn clear_three_slot(x: u64) -> u64 {
-    x & CLEAR_THREE
-}
-
-pub const fn clear_four_slot(x: u64) -> u64 {
-    x & CLEAR_FOUR
-}
-
-pub const fn clear_five_slot(x: u64) -> u64 {
-    x & CLEAR_FIVE
-}
-
-pub const fn clear_six_slot(x: u64) -> u64 {
-    x & CLEAR_SIX
-}
-
-pub const fn clear_seven_slot(x: u64) -> u64 {
-    x & CLEAR_SEVEN
-}
-
-pub const fn clear_eight_slot(x: u64) -> u64 {
-    x & CLEAR_EIGHT
-}
-
-pub const fn only_zero_slot(x: u64) -> u64 {
-    x & !CLEAR_ZERO
-}
-
-pub const fn only_one_slot(x: u64) -> u64 {
-    x & !CLEAR_ONE
-}
-
-pub const fn only_two_slot(x: u64) -> u64 {
-    x & !CLEAR_TWO
-}
-
-pub const fn only_three_slot(x: u64) -> u64 {
-    x & !CLEAR_THREE
-}
-
-pub const fn only_four_slot(x: u64) -> u64 {
-    x & !CLEAR_FOUR
-}
-
-pub const fn only_five_slot(x: u64) -> u64 {
-    x & !CLEAR_FIVE
-}
-
-pub const fn only_six_slot(x: u64) -> u64 {
-    x & !CLEAR_SIX
-}
-
-pub const fn only_seven_slot(x: u64) -> u64 {
-    x & !CLEAR_SEVEN
-}
-
-pub const fn only_eight_slot(x: u64) -> u64 {
-    x & !CLEAR_EIGHT
-}
 
 #[cfg(test)]
 mod tests {
@@ -273,39 +173,39 @@ mod tests {
             0b0_000000000_000000000_111111111_0000_0000_0000_0000_0000_0000_0000_0000_0000,
         );
         assert_eq!(
-            to_zero_slot(FOUR_SET_BITS),
+            to_col(FOUR_SET_BITS, 0),
             0b0_000000000_000000000_000000000_1111_0000_0000_0000_0000_0000_0000_0000_0000,
         );
         assert_eq!(
-            to_one_slot(FOUR_SET_BITS),
+            to_col(FOUR_SET_BITS, 1),
             0b0_000000000_000000000_000000000_0000_1111_0000_0000_0000_0000_0000_0000_0000,
         );
         assert_eq!(
-            to_two_slot(FOUR_SET_BITS),
+            to_col(FOUR_SET_BITS, 2),
             0b0_000000000_000000000_000000000_0000_0000_1111_0000_0000_0000_0000_0000_0000,
         );
         assert_eq!(
-            to_three_slot(FOUR_SET_BITS),
+            to_col(FOUR_SET_BITS, 3),
             0b0_000000000_000000000_000000000_0000_0000_0000_1111_0000_0000_0000_0000_0000,
         );
         assert_eq!(
-            to_four_slot(FOUR_SET_BITS),
+            to_col(FOUR_SET_BITS, 4),
             0b0_000000000_000000000_000000000_0000_0000_0000_0000_1111_0000_0000_0000_0000,
         );
         assert_eq!(
-            to_five_slot(FOUR_SET_BITS),
+            to_col(FOUR_SET_BITS, 5),
             0b0_000000000_000000000_000000000_0000_0000_0000_0000_0000_1111_0000_0000_0000,
         );
         assert_eq!(
-            to_six_slot(FOUR_SET_BITS),
+            to_col(FOUR_SET_BITS, 6),
             0b0_000000000_000000000_000000000_0000_0000_0000_0000_0000_0000_1111_0000_0000,
         );
         assert_eq!(
-            to_seven_slot(FOUR_SET_BITS),
+            to_col(FOUR_SET_BITS, 7),
             0b0_000000000_000000000_000000000_0000_0000_0000_0000_0000_0000_0000_1111_0000,
         );
         assert_eq!(
-            to_eight_slot(FOUR_SET_BITS),
+            to_col(FOUR_SET_BITS, 8),
             0b0_000000000_000000000_000000000_0000_0000_0000_0000_0000_0000_0000_0000_1111,
         );
     }
@@ -333,39 +233,39 @@ mod tests {
         const ALL_SET_BITS: u64 =
             0b1_111111111_111111111_111111111_1111_1111_1111_1111_1111_1111_1111_1111_1111;
         assert_eq!(
-            clear_zero_slot(ALL_SET_BITS),
+            clear_cell(ALL_SET_BITS, 0),
             0b1_111111111_111111111_111111111_0000_1111_1111_1111_1111_1111_1111_1111_1111,
         );
         assert_eq!(
-            clear_one_slot(ALL_SET_BITS),
+            clear_cell(ALL_SET_BITS, 1),
             0b1_111111111_111111111_111111111_1111_0000_1111_1111_1111_1111_1111_1111_1111,
         );
         assert_eq!(
-            clear_two_slot(ALL_SET_BITS),
+            clear_cell(ALL_SET_BITS, 2),
             0b1_111111111_111111111_111111111_1111_1111_0000_1111_1111_1111_1111_1111_1111,
         );
         assert_eq!(
-            clear_three_slot(ALL_SET_BITS),
+            clear_cell(ALL_SET_BITS, 3),
             0b1_111111111_111111111_111111111_1111_1111_1111_0000_1111_1111_1111_1111_1111,
         );
         assert_eq!(
-            clear_four_slot(ALL_SET_BITS),
+            clear_cell(ALL_SET_BITS, 4),
             0b1_111111111_111111111_111111111_1111_1111_1111_1111_0000_1111_1111_1111_1111,
         );
         assert_eq!(
-            clear_five_slot(ALL_SET_BITS),
+            clear_cell(ALL_SET_BITS, 5),
             0b1_111111111_111111111_111111111_1111_1111_1111_1111_1111_0000_1111_1111_1111,
         );
         assert_eq!(
-            clear_six_slot(ALL_SET_BITS),
+            clear_cell(ALL_SET_BITS, 6),
             0b1_111111111_111111111_111111111_1111_1111_1111_1111_1111_1111_0000_1111_1111,
         );
         assert_eq!(
-            clear_seven_slot(ALL_SET_BITS),
+            clear_cell(ALL_SET_BITS, 7),
             0b1_111111111_111111111_111111111_1111_1111_1111_1111_1111_1111_1111_0000_1111,
         );
         assert_eq!(
-            clear_eight_slot(ALL_SET_BITS),
+            clear_cell(ALL_SET_BITS, 8),
             0b1_111111111_111111111_111111111_1111_1111_1111_1111_1111_1111_1111_1111_0000,
         );
     }
@@ -377,25 +277,14 @@ mod tests {
         const FOUR_BITS_SET: u64 =
             0b0_000000000_000000000_000000000_0000_0000_0000_0000_0000_0000_0000_0000_1111;
 
-        assert_eq!(FOUR_BITS_SET, from_zero_slot(only_zero_slot(ALL_BITS_SET)),);
-        assert_eq!(FOUR_BITS_SET, from_one_slot(only_one_slot(ALL_BITS_SET)),);
-        assert_eq!(FOUR_BITS_SET, from_two_slot(only_two_slot(ALL_BITS_SET)),);
-        assert_eq!(
-            FOUR_BITS_SET,
-            from_three_slot(only_three_slot(ALL_BITS_SET)),
-        );
-
-        assert_eq!(FOUR_BITS_SET, from_four_slot(only_four_slot(ALL_BITS_SET)),);
-        assert_eq!(FOUR_BITS_SET, from_five_slot(only_five_slot(ALL_BITS_SET)),);
-        assert_eq!(FOUR_BITS_SET, from_six_slot(only_six_slot(ALL_BITS_SET)),);
-        assert_eq!(
-            FOUR_BITS_SET,
-            from_seven_slot(only_seven_slot(ALL_BITS_SET)),
-        );
-
-        assert_eq!(
-            FOUR_BITS_SET,
-            from_eight_slot(only_eight_slot(ALL_BITS_SET)),
-        );
+        assert_eq!(FOUR_BITS_SET, value_at(ALL_BITS_SET, 0));
+        assert_eq!(FOUR_BITS_SET, value_at(ALL_BITS_SET, 1));
+        assert_eq!(FOUR_BITS_SET, value_at(ALL_BITS_SET, 2));
+        assert_eq!(FOUR_BITS_SET, value_at(ALL_BITS_SET, 3));
+        assert_eq!(FOUR_BITS_SET, value_at(ALL_BITS_SET, 4));
+        assert_eq!(FOUR_BITS_SET, value_at(ALL_BITS_SET, 5));
+        assert_eq!(FOUR_BITS_SET, value_at(ALL_BITS_SET, 6));
+        assert_eq!(FOUR_BITS_SET, value_at(ALL_BITS_SET, 7));
+        assert_eq!(FOUR_BITS_SET, value_at(ALL_BITS_SET, 8));
     }
 }

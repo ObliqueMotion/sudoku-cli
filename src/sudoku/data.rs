@@ -1,5 +1,4 @@
 use super::bitwise;
-use crate::sudoku::bitwise::{from_zero_slot, only_zero_slot};
 use std::cell::Cell;
 use std::fmt;
 
@@ -7,84 +6,16 @@ use std::fmt;
 pub struct SudokuData(Cell<u64>);
 
 impl SudokuData {
-    pub fn new() -> Self {
-        SudokuData(Cell::new(0))
-    }
-
     pub fn clear(&self) {
         self.0.set(0);
     }
 
-    pub fn clear_zero_slot(&self) {
-        self.0.set(bitwise::clear_zero_slot(self.0.get()));
+    pub fn clear_cell(&self, col: u64) {
+        self.0.set(bitwise::clear_cell(self.0.get(), col));
     }
 
-    pub fn clear_one_slot(&self) {
-        self.0.set(bitwise::clear_one_slot(self.0.get()))
-    }
-
-    pub fn clear_two_slot(&self) {
-        self.0.set(bitwise::clear_two_slot(self.0.get()))
-    }
-
-    pub fn clear_three_slot(&self) {
-        self.0.set(bitwise::clear_three_slot(self.0.get()))
-    }
-
-    pub fn clear_four_slot(&self) {
-        self.0.set(bitwise::clear_four_slot(self.0.get()))
-    }
-
-    pub fn clear_five_slot(&self) {
-        self.0.set(bitwise::clear_five_slot(self.0.get()))
-    }
-
-    pub fn clear_six_slot(&self) {
-        self.0.set(bitwise::clear_six_slot(self.0.get()))
-    }
-
-    pub fn clear_seven_slot(&self) {
-        self.0.set(bitwise::clear_seven_slot(self.0.get()))
-    }
-
-    pub fn clear_eight_slot(&self) {
-        self.0.set(bitwise::clear_eight_slot(self.0.get()))
-    }
-
-    pub fn set_zero_slot(&self, x: u64) {
-        self.0.set(self.0.get() | bitwise::to_zero_slot(x));
-    }
-
-    pub fn set_one_slot(&self, x: u64) {
-        self.0.set(self.0.get() | bitwise::to_one_slot(x));
-    }
-
-    pub fn set_two_slot(&self, x: u64) {
-        self.0.set(self.0.get() | bitwise::to_two_slot(x));
-    }
-
-    pub fn set_three_slot(&self, x: u64) {
-        self.0.set(self.0.get() | bitwise::to_three_slot(x));
-    }
-
-    pub fn set_four_slot(&self, x: u64) {
-        self.0.set(self.0.get() | bitwise::to_four_slot(x));
-    }
-
-    pub fn set_five_slot(&self, x: u64) {
-        self.0.set(self.0.get() | bitwise::to_five_slot(x));
-    }
-
-    pub fn set_six_slot(&self, x: u64) {
-        self.0.set(self.0.get() | bitwise::to_six_slot(x));
-    }
-
-    pub fn set_seven_slot(&self, x: u64) {
-        self.0.set(self.0.get() | bitwise::to_seven_slot(x));
-    }
-
-    pub fn set_eight_slot(&self, x: u64) {
-        self.0.set(self.0.get() | bitwise::to_eight_slot(x));
+    pub fn set_cell(&self, x: u64, col: u64) {
+        self.0.set(self.0.get() | bitwise::to_col(x, col))
     }
 
     pub fn add_to_row(&self, x: u64) {
@@ -117,112 +48,38 @@ impl SudokuData {
             .set(self.0.get() & bitwise::as_not_box(bitwise::as_not_bit(x)));
     }
 
-    fn format_zero_slot(&self) -> &str {
-        let data = self.0.get();
-        let data = bitwise::from_zero_slot(bitwise::only_zero_slot(data));
-        if 0 == data {
-            " "
-        } else {
-            "0"
-        }
-    }
-
-    fn format_one_slot(&self) -> &str {
-        let data = self.0.get();
-        let data = bitwise::from_one_slot(bitwise::only_one_slot(data));
-        if 0 == data {
-            " "
-        } else {
-            "1"
-        }
-    }
-
-    fn format_two_slot(&self) -> &str {
-        let data = self.0.get();
-        let data = bitwise::from_two_slot(bitwise::only_two_slot(data));
-        if 0 == data {
-            " "
-        } else {
-            "2"
-        }
-    }
-
-    fn format_three_slot(&self) -> &str {
-        let data = self.0.get();
-        let data = bitwise::from_three_slot(bitwise::only_three_slot(data));
-        if 0 == data {
-            " "
-        } else {
-            "3"
-        }
-    }
-
-    fn format_four_slot(&self) -> &str {
-        let data = self.0.get();
-        let data = bitwise::from_four_slot(bitwise::only_four_slot(data));
-        if 0 == data {
-            " "
-        } else {
-            "4"
-        }
-    }
-
-    fn format_five_slot(&self) -> &str {
-        let data = self.0.get();
-        let data = bitwise::from_five_slot(bitwise::only_five_slot(data));
-        if 0 == data {
-            " "
-        } else {
-            "5"
-        }
-    }
-
-    fn format_six_slot(&self) -> &str {
-        let data = self.0.get();
-        let data = bitwise::from_six_slot(bitwise::only_six_slot(data));
-        if 0 == data {
-            " "
-        } else {
-            "6"
-        }
-    }
-
-    fn format_seven_slot(&self) -> &str {
-        let data = self.0.get();
-        let data = bitwise::from_seven_slot(bitwise::only_seven_slot(data));
-        if 0 == data {
-            " "
-        } else {
-            "7"
-        }
-    }
-
-    fn format_eight_slot(&self) -> &str {
-        let data = self.0.get();
-        let data = bitwise::from_eight_slot(bitwise::only_eight_slot(data));
-        if 0 == data {
-            " "
-        } else {
-            "8"
+    fn format_cell(&self, col: u64) -> &str {
+       let value = bitwise::value_at(self.0.get(), col);
+        match value {
+            0 => " ",
+            1 => "1",
+            2 => "2",
+            3 => "3",
+            4 => "4",
+            5 => "5",
+            6 => "6",
+            7 => "7",
+            8 => "8",
+            9 => "9",
+            _ => panic!("format_cell(): Value not in range (1..=9) found on board.")
         }
     }
 }
 
 impl fmt::Display for SudokuData {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let data = self.0.get();
         write!(
             f,
             "│ {} {} {} │ {} {} {} │ {} {} {} │",
-            self.format_zero_slot(),
-            self.format_one_slot(),
-            self.format_two_slot(),
-            self.format_three_slot(),
-            self.format_four_slot(),
-            self.format_five_slot(),
-            self.format_six_slot(),
-            self.format_seven_slot(),
-            self.format_eight_slot(),
+            self.format_cell(0),
+            self.format_cell(1),
+            self.format_cell(2),
+            self.format_cell(3),
+            self.format_cell(4),
+            self.format_cell(5),
+            self.format_cell(6),
+            self.format_cell(7),
+            self.format_cell(8),
         )
     }
 }
@@ -233,115 +90,115 @@ mod tests {
 
     #[test]
     fn zero_slot() {
-        let data = SudokuData::new();
-        data.set_zero_slot(0b0101);
+        let data = SudokuData::default();
+        data.set_cell(0b0101, 0);
         assert_eq!(
             data.0.get(),
             0b0_000000000_0000000000_000000000_0101_0000_0000_0000_0000_0000_0000_0000_0000,
         );
-        data.clear_zero_slot();
+        data.clear_cell(0);
         assert_eq!(data.0.get(), 0);
     }
 
     #[test]
     fn one_slot() {
-        let data = SudokuData::new();
-        data.set_one_slot(0b0101);
+        let data = SudokuData::default();
+        data.set_cell(0b0101, 1);
         assert_eq!(
             data.0.get(),
             0b0_000000000_0000000000_000000000_0000_0101_0000_0000_0000_0000_0000_0000_0000,
         );
-        data.clear_one_slot();
+        data.clear_cell(1);
         assert_eq!(data.0.get(), 0);
     }
 
     #[test]
     fn two_slot() {
-        let data = SudokuData::new();
-        data.set_two_slot(0b0101);
+        let data = SudokuData::default();
+        data.set_cell(0b0101, 2);
         assert_eq!(
             data.0.get(),
             0b0_000000000_0000000000_000000000_0000_0000_0101_0000_0000_0000_0000_0000_0000,
         );
-        data.clear_two_slot();
+        data.clear_cell(2);
         assert_eq!(data.0.get(), 0);
     }
 
     #[test]
     fn three_slot() {
-        let data = SudokuData::new();
-        data.set_three_slot(0b0101);
+        let data = SudokuData::default();
+        data.set_cell(0b0101, 3);
         assert_eq!(
             data.0.get(),
             0b0_000000000_0000000000_000000000_0000_0000_0000_0101_0000_0000_0000_0000_0000,
         );
-        data.clear_three_slot();
+        data.clear_cell(3);
         assert_eq!(data.0.get(), 0);
     }
 
     #[test]
     fn four_slot() {
-        let data = SudokuData::new();
-        data.set_four_slot(0b0101);
+        let data = SudokuData::default();
+        data.set_cell(0b0101, 4);
         assert_eq!(
             data.0.get(),
             0b0_000000000_0000000000_000000000_0000_0000_0000_0000_0101_0000_0000_0000_0000,
         );
-        data.clear_four_slot();
+        data.clear_cell(4);
         assert_eq!(data.0.get(), 0);
     }
 
     #[test]
     fn five_slot() {
-        let data = SudokuData::new();
-        data.set_five_slot(0b0101);
+        let data = SudokuData::default();
+        data.set_cell(0b0101, 5);
         assert_eq!(
             data.0.get(),
             0b0_000000000_0000000000_000000000_0000_0000_0000_0000_0000_0101_0000_0000_0000,
         );
-        data.clear_five_slot();
+        data.clear_cell(5);
         assert_eq!(data.0.get(), 0);
     }
 
     #[test]
     fn six_slot() {
-        let data = SudokuData::new();
-        data.set_six_slot(0b0101);
+        let data = SudokuData::default();
+        data.set_cell(0b0101, 6);
         assert_eq!(
             data.0.get(),
             0b0_000000000_0000000000_000000000_0000_0000_0000_0000_0000_0000_0101_0000_0000,
         );
-        data.clear_six_slot();
+        data.clear_cell(6);
         assert_eq!(data.0.get(), 0);
     }
 
     #[test]
     fn seven_slot() {
-        let data = SudokuData::new();
-        data.set_seven_slot(0b0101);
+        let data = SudokuData::default();
+        data.set_cell(0b0101, 7);
         assert_eq!(
             data.0.get(),
             0b0_000000000_0000000000_000000000_0000_0000_0000_0000_0000_0000_0000_0101_0000,
         );
-        data.clear_seven_slot();
+        data.clear_cell(7);
         assert_eq!(data.0.get(), 0);
     }
 
     #[test]
     fn eight_slot() {
-        let data = SudokuData::new();
-        data.set_eight_slot(0b0101);
+        let data = SudokuData::default();
+        data.set_cell(0b0101, 8);
         assert_eq!(
             data.0.get(),
             0b0_000000000_0000000000_000000000_0000_0000_0000_0000_0000_0000_0000_0000_0101,
         );
-        data.clear_eight_slot();
+        data.clear_cell(8);
         assert_eq!(data.0.get(), 0);
     }
 
     #[test]
     fn row_manipulation() {
-        let data = SudokuData::new();
+        let data = SudokuData::default();
         data.add_to_row(1);
         data.add_to_row(3);
         data.add_to_row(5);
@@ -378,7 +235,7 @@ mod tests {
 
     #[test]
     fn col_manipulation() {
-        let data = SudokuData::new();
+        let data = SudokuData::default();
         data.add_to_col(1);
         data.add_to_col(3);
         data.add_to_col(5);
@@ -414,7 +271,7 @@ mod tests {
 
     #[test]
     fn box_manipulation() {
-        let data = SudokuData::new();
+        let data = SudokuData::default();
         data.add_to_box(1);
         data.add_to_box(3);
         data.add_to_box(5);

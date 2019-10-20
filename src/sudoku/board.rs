@@ -3,31 +3,31 @@ use std::fmt;
 
 #[derive(Clone, Debug, Default)]
 pub struct SudokuBoard {
-    d0: SudokuData,
-    d1: SudokuData,
-    d2: SudokuData,
-    d3: SudokuData,
-    d4: SudokuData,
-    d5: SudokuData,
-    d6: SudokuData,
-    d7: SudokuData,
-    d8: SudokuData,
+    state: [SudokuData;9]
+}
+
+impl SudokuBoard {
+    pub fn insert(&self, value: u64, row: usize, col: usize) {
+        assert!((1..=9).contains(&value));
+        assert!((0..=8).contains(&row));
+        assert!((0..=8).contains(&col));
+    }
 }
 
 impl fmt::Display for SudokuBoard {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        writeln!(f, "┌───────┬───────┬───────┐");
-        writeln!(f, "{}", self.d0);
-        writeln!(f, "{}", self.d1);
-        writeln!(f, "{}", self.d2);
-        writeln!(f, "├───────┼───────┼───────┤");
-        writeln!(f, "{}", self.d3);
-        writeln!(f, "{}", self.d4);
-        writeln!(f, "{}", self.d5);
-        writeln!(f, "├───────┼───────┼───────┤");
-        writeln!(f, "{}", self.d6);
-        writeln!(f, "{}", self.d7);
-        writeln!(f, "{}", self.d8);
+        writeln!(f, "┌───────┬───────┬───────┐")?;
+        writeln!(f, "{}", self.state[0])?;
+        writeln!(f, "{}", self.state[1])?;
+        writeln!(f, "{}", self.state[2])?;
+        writeln!(f, "├───────┼───────┼───────┤")?;
+        writeln!(f, "{}", self.state[3])?;
+        writeln!(f, "{}", self.state[4])?;
+        writeln!(f, "{}", self.state[5])?;
+        writeln!(f, "├───────┼───────┼───────┤")?;
+        writeln!(f, "{}", self.state[6])?;
+        writeln!(f, "{}", self.state[7])?;
+        writeln!(f, "{}", self.state[8])?;
         writeln!(f, "└───────┴───────┴───────┘")
     }
 }
