@@ -3,7 +3,7 @@ use std::fmt;
 
 #[derive(Clone, Debug, Default)]
 pub struct SudokuBoard {
-    state: [SudokuData;9]
+    state: [SudokuData; 9],
 }
 
 impl SudokuBoard {

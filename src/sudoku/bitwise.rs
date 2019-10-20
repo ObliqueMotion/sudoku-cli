@@ -8,16 +8,6 @@ const SEVEN: u64 = 0b0000000000000000000000000000000000000000000000000000000_000
 const EIGHT: u64 = 0b0000000000000000000000000000000000000000000000000000000_000000010;
 const NINE: u64 = 0b0000000000000000000000000000000000000000000000000000000_000000001;
 
-const NOT_ONE: u64 = !ONE;
-const NOT_TWO: u64 = !TWO;
-const NOT_THREE: u64 = !THREE;
-const NOT_FOUR: u64 = !FOUR;
-const NOT_FIVE: u64 = !FIVE;
-const NOT_SIX: u64 = !SIX;
-const NOT_SEVEN: u64 = !SEVEN;
-const NOT_EIGHT: u64 = !EIGHT;
-const NOT_NINE: u64 = !NINE;
-
 const ROW_SHIFT: u64 = 54;
 const COL_SHIFT: u64 = 45;
 const BOX_SHIFT: u64 = 36;
@@ -67,15 +57,15 @@ pub fn as_bit(x: u64) -> u64 {
 
 pub fn as_not_bit(x: u64) -> u64 {
     match x {
-        1 => NOT_ONE,
-        2 => NOT_TWO,
-        3 => NOT_THREE,
-        4 => NOT_FOUR,
-        5 => NOT_FIVE,
-        6 => NOT_SIX,
-        7 => NOT_SEVEN,
-        8 => NOT_EIGHT,
-        9 => NOT_NINE,
+        1 => !ONE,
+        2 => !TWO,
+        3 => !THREE,
+        4 => !FOUR,
+        5 => !FIVE,
+        6 => !SIX,
+        7 => !SEVEN,
+        8 => !EIGHT,
+        9 => !NINE,
         _ => panic!("as_not_bit(): Attempted to convert invalid number to bit."),
     }
 }
@@ -104,7 +94,7 @@ pub const fn as_not_box(x: u64) -> u64 {
     x << BOX_SHIFT | ((1 << BOX_SHIFT) - 1)
 }
 
-pub fn to_col(data: u64, col: u64) -> u64 {
+pub fn to_cell(data: u64, col: u64) -> u64 {
     match col {
         0 => data << ZERO_SHIFT,
         1 => data << ONE_SHIFT,
@@ -115,11 +105,11 @@ pub fn to_col(data: u64, col: u64) -> u64 {
         6 => data << SIX_SHIFT,
         7 => data << SEVEN_SHIFT,
         8 => data << EIGHT_SHIFT,
-        _ => panic!("to_col(): Attempted to shift to column outside of board."),
+        _ => panic!("to_cell(): Attempted to shift to column outside of board."),
     }
 }
 
-pub fn value_at(data: u64, col: u64) -> u64 {
+pub fn value_in_cell(data: u64, col: u64) -> u64 {
     match col {
         0 => data & !CLEAR_ZERO >> ZERO_SHIFT,
         1 => data & !CLEAR_ONE >> ONE_SHIFT,
@@ -130,7 +120,7 @@ pub fn value_at(data: u64, col: u64) -> u64 {
         6 => data & !CLEAR_SIX >> SIX_SHIFT,
         7 => data & !CLEAR_SEVEN >> SEVEN_SHIFT,
         8 => data & !CLEAR_EIGHT >> EIGHT_SHIFT,
-        _ => panic!("value_at(): Attempted to get value of cell that is not on board."),
+        _ => panic!("value_in_cell(): Attempted to get value of cell that is not on board."),
     }
 }
 
@@ -148,7 +138,6 @@ pub fn clear_cell(data: u64, col: u64) -> u64 {
         _ => panic!("clear_cell(): Attempted to clear cell outside of board."),
     }
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -173,39 +162,39 @@ mod tests {
             0b0_000000000_000000000_111111111_0000_0000_0000_0000_0000_0000_0000_0000_0000,
         );
         assert_eq!(
-            to_col(FOUR_SET_BITS, 0),
+            to_cell(FOUR_SET_BITS, 0),
             0b0_000000000_000000000_000000000_1111_0000_0000_0000_0000_0000_0000_0000_0000,
         );
         assert_eq!(
-            to_col(FOUR_SET_BITS, 1),
+            to_cell(FOUR_SET_BITS, 1),
             0b0_000000000_000000000_000000000_0000_1111_0000_0000_0000_0000_0000_0000_0000,
         );
         assert_eq!(
-            to_col(FOUR_SET_BITS, 2),
+            to_cell(FOUR_SET_BITS, 2),
             0b0_000000000_000000000_000000000_0000_0000_1111_0000_0000_0000_0000_0000_0000,
         );
         assert_eq!(
-            to_col(FOUR_SET_BITS, 3),
+            to_cell(FOUR_SET_BITS, 3),
             0b0_000000000_000000000_000000000_0000_0000_0000_1111_0000_0000_0000_0000_0000,
         );
         assert_eq!(
-            to_col(FOUR_SET_BITS, 4),
+            to_cell(FOUR_SET_BITS, 4),
             0b0_000000000_000000000_000000000_0000_0000_0000_0000_1111_0000_0000_0000_0000,
         );
         assert_eq!(
-            to_col(FOUR_SET_BITS, 5),
+            to_cell(FOUR_SET_BITS, 5),
             0b0_000000000_000000000_000000000_0000_0000_0000_0000_0000_1111_0000_0000_0000,
         );
         assert_eq!(
-            to_col(FOUR_SET_BITS, 6),
+            to_cell(FOUR_SET_BITS, 6),
             0b0_000000000_000000000_000000000_0000_0000_0000_0000_0000_0000_1111_0000_0000,
         );
         assert_eq!(
-            to_col(FOUR_SET_BITS, 7),
+            to_cell(FOUR_SET_BITS, 7),
             0b0_000000000_000000000_000000000_0000_0000_0000_0000_0000_0000_0000_1111_0000,
         );
         assert_eq!(
-            to_col(FOUR_SET_BITS, 8),
+            to_cell(FOUR_SET_BITS, 8),
             0b0_000000000_000000000_000000000_0000_0000_0000_0000_0000_0000_0000_0000_1111,
         );
     }
@@ -277,14 +266,14 @@ mod tests {
         const FOUR_BITS_SET: u64 =
             0b0_000000000_000000000_000000000_0000_0000_0000_0000_0000_0000_0000_0000_1111;
 
-        assert_eq!(FOUR_BITS_SET, value_at(ALL_BITS_SET, 0));
-        assert_eq!(FOUR_BITS_SET, value_at(ALL_BITS_SET, 1));
-        assert_eq!(FOUR_BITS_SET, value_at(ALL_BITS_SET, 2));
-        assert_eq!(FOUR_BITS_SET, value_at(ALL_BITS_SET, 3));
-        assert_eq!(FOUR_BITS_SET, value_at(ALL_BITS_SET, 4));
-        assert_eq!(FOUR_BITS_SET, value_at(ALL_BITS_SET, 5));
-        assert_eq!(FOUR_BITS_SET, value_at(ALL_BITS_SET, 6));
-        assert_eq!(FOUR_BITS_SET, value_at(ALL_BITS_SET, 7));
-        assert_eq!(FOUR_BITS_SET, value_at(ALL_BITS_SET, 8));
+        assert_eq!(FOUR_BITS_SET, value_in_cell(ALL_BITS_SET, 0));
+        assert_eq!(FOUR_BITS_SET, value_in_cell(ALL_BITS_SET, 1));
+        assert_eq!(FOUR_BITS_SET, value_in_cell(ALL_BITS_SET, 2));
+        assert_eq!(FOUR_BITS_SET, value_in_cell(ALL_BITS_SET, 3));
+        assert_eq!(FOUR_BITS_SET, value_in_cell(ALL_BITS_SET, 4));
+        assert_eq!(FOUR_BITS_SET, value_in_cell(ALL_BITS_SET, 5));
+        assert_eq!(FOUR_BITS_SET, value_in_cell(ALL_BITS_SET, 6));
+        assert_eq!(FOUR_BITS_SET, value_in_cell(ALL_BITS_SET, 7));
+        assert_eq!(FOUR_BITS_SET, value_in_cell(ALL_BITS_SET, 8));
     }
 }
