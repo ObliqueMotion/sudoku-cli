@@ -1,6 +1,7 @@
 use super::data::SudokuData;
 use std::fmt;
 use std::iter::repeat;
+use std::borrow::Borrow;
 
 #[derive(Clone, Debug, Default)]
 pub struct SudokuBoard {
@@ -68,9 +69,10 @@ impl fmt::Display for SudokuBoard {
     }
 }
 
-impl From<&str> for SudokuBoard {
-    fn from(input: &str) -> Self {
+impl<B: Borrow<str>> From<B> for SudokuBoard {
+    fn from(input: B) -> Self {
         input
+            .borrow()
             .trim()
             .chars()
             .filter(|c| !c.is_whitespace())
