@@ -94,7 +94,7 @@ pub const fn to_box_inverse(x: u64) -> u64 {
     x << SHIFT_BOX | ((1 << SHIFT_BOX) - 1)
 }
 
-pub fn to_cell(data: u64, col: usize) -> u64 {
+pub fn to_square(data: u64, col: usize) -> u64 {
     match col {
         0 => data << SHIFT_ZERO,
         1 => data << SHIFT_ONE,
@@ -105,12 +105,12 @@ pub fn to_cell(data: u64, col: usize) -> u64 {
         6 => data << SHIFT_SIX,
         7 => data << SHIFT_SEVEN,
         8 => data << SHIFT_EIGHT,
-        _ => panic!("to_cell(): Attempted to shift to column outside of board."),
+        _ => panic!("to_square(): Attempted to shift to column outside of board."),
     }
 }
 
 
-pub fn value_in_cell(data: u64, col: usize) -> u64 {
+pub fn value_in_square(data: u64, col: usize) -> u64 {
     match col {
         0 => (data & !CLEAR_ZERO)  >> SHIFT_ZERO,
         1 => (data & !CLEAR_ONE)   >> SHIFT_ONE,
@@ -121,11 +121,11 @@ pub fn value_in_cell(data: u64, col: usize) -> u64 {
         6 => (data & !CLEAR_SIX)   >> SHIFT_SIX,
         7 => (data & !CLEAR_SEVEN) >> SHIFT_SEVEN,
         8 => (data & !CLEAR_EIGHT) >> SHIFT_EIGHT,
-        _ => panic!("value_in_cell(): Attempted to get value of cell that is not on board."),
+        _ => panic!("value_in_square(): Attempted to get value of square that is not on board."),
     }
 }
 
-pub fn clear_cell(data: u64, col: usize) -> u64 {
+pub fn clear_square(data: u64, col: usize) -> u64 {
     match col {
         0 => data & CLEAR_ZERO,
         1 => data & CLEAR_ONE,
@@ -136,7 +136,7 @@ pub fn clear_cell(data: u64, col: usize) -> u64 {
         6 => data & CLEAR_SIX,
         7 => data & CLEAR_SEVEN,
         8 => data & CLEAR_EIGHT,
-        _ => panic!("clear_cell(): Attempted to clear cell outside of board."),
+        _ => panic!("clear_square(): Attempted to clear square outside of board."),
     }
 }
 
@@ -163,39 +163,39 @@ mod tests {
             0b0_000000000_000000000_111111111_0000_0000_0000_0000_0000_0000_0000_0000_0000,
         );
         assert_eq!(
-            to_cell(FOUR_SET_BITS, 0),
+            to_square(FOUR_SET_BITS, 0),
             0b0_000000000_000000000_000000000_1111_0000_0000_0000_0000_0000_0000_0000_0000,
         );
         assert_eq!(
-            to_cell(FOUR_SET_BITS, 1),
+            to_square(FOUR_SET_BITS, 1),
             0b0_000000000_000000000_000000000_0000_1111_0000_0000_0000_0000_0000_0000_0000,
         );
         assert_eq!(
-            to_cell(FOUR_SET_BITS, 2),
+            to_square(FOUR_SET_BITS, 2),
             0b0_000000000_000000000_000000000_0000_0000_1111_0000_0000_0000_0000_0000_0000,
         );
         assert_eq!(
-            to_cell(FOUR_SET_BITS, 3),
+            to_square(FOUR_SET_BITS, 3),
             0b0_000000000_000000000_000000000_0000_0000_0000_1111_0000_0000_0000_0000_0000,
         );
         assert_eq!(
-            to_cell(FOUR_SET_BITS, 4),
+            to_square(FOUR_SET_BITS, 4),
             0b0_000000000_000000000_000000000_0000_0000_0000_0000_1111_0000_0000_0000_0000,
         );
         assert_eq!(
-            to_cell(FOUR_SET_BITS, 5),
+            to_square(FOUR_SET_BITS, 5),
             0b0_000000000_000000000_000000000_0000_0000_0000_0000_0000_1111_0000_0000_0000,
         );
         assert_eq!(
-            to_cell(FOUR_SET_BITS, 6),
+            to_square(FOUR_SET_BITS, 6),
             0b0_000000000_000000000_000000000_0000_0000_0000_0000_0000_0000_1111_0000_0000,
         );
         assert_eq!(
-            to_cell(FOUR_SET_BITS, 7),
+            to_square(FOUR_SET_BITS, 7),
             0b0_000000000_000000000_000000000_0000_0000_0000_0000_0000_0000_0000_1111_0000,
         );
         assert_eq!(
-            to_cell(FOUR_SET_BITS, 8),
+            to_square(FOUR_SET_BITS, 8),
             0b0_000000000_000000000_000000000_0000_0000_0000_0000_0000_0000_0000_0000_1111,
         );
     }
@@ -223,39 +223,39 @@ mod tests {
         const ALL_SET_BITS: u64 =
             0b1_111111111_111111111_111111111_1111_1111_1111_1111_1111_1111_1111_1111_1111;
         assert_eq!(
-            clear_cell(ALL_SET_BITS, 0),
+            clear_square(ALL_SET_BITS, 0),
             0b1_111111111_111111111_111111111_0000_1111_1111_1111_1111_1111_1111_1111_1111,
         );
         assert_eq!(
-            clear_cell(ALL_SET_BITS, 1),
+            clear_square(ALL_SET_BITS, 1),
             0b1_111111111_111111111_111111111_1111_0000_1111_1111_1111_1111_1111_1111_1111,
         );
         assert_eq!(
-            clear_cell(ALL_SET_BITS, 2),
+            clear_square(ALL_SET_BITS, 2),
             0b1_111111111_111111111_111111111_1111_1111_0000_1111_1111_1111_1111_1111_1111,
         );
         assert_eq!(
-            clear_cell(ALL_SET_BITS, 3),
+            clear_square(ALL_SET_BITS, 3),
             0b1_111111111_111111111_111111111_1111_1111_1111_0000_1111_1111_1111_1111_1111,
         );
         assert_eq!(
-            clear_cell(ALL_SET_BITS, 4),
+            clear_square(ALL_SET_BITS, 4),
             0b1_111111111_111111111_111111111_1111_1111_1111_1111_0000_1111_1111_1111_1111,
         );
         assert_eq!(
-            clear_cell(ALL_SET_BITS, 5),
+            clear_square(ALL_SET_BITS, 5),
             0b1_111111111_111111111_111111111_1111_1111_1111_1111_1111_0000_1111_1111_1111,
         );
         assert_eq!(
-            clear_cell(ALL_SET_BITS, 6),
+            clear_square(ALL_SET_BITS, 6),
             0b1_111111111_111111111_111111111_1111_1111_1111_1111_1111_1111_0000_1111_1111,
         );
         assert_eq!(
-            clear_cell(ALL_SET_BITS, 7),
+            clear_square(ALL_SET_BITS, 7),
             0b1_111111111_111111111_111111111_1111_1111_1111_1111_1111_1111_1111_0000_1111,
         );
         assert_eq!(
-            clear_cell(ALL_SET_BITS, 8),
+            clear_square(ALL_SET_BITS, 8),
             0b1_111111111_111111111_111111111_1111_1111_1111_1111_1111_1111_1111_1111_0000,
         );
     }
@@ -264,14 +264,14 @@ mod tests {
     fn isolations() {
         const COLUMNS: u64 = 0b0001_0010_0011_0100_0101_0110_0111_1000_1001;
 
-        assert_eq!(1, value_in_cell(COLUMNS, 0));
-        assert_eq!(2, value_in_cell(COLUMNS, 1));
-        assert_eq!(3, value_in_cell(COLUMNS, 2));
-        assert_eq!(4, value_in_cell(COLUMNS, 3));
-        assert_eq!(5, value_in_cell(COLUMNS, 4));
-        assert_eq!(6, value_in_cell(COLUMNS, 5));
-        assert_eq!(7, value_in_cell(COLUMNS, 6));
-        assert_eq!(8, value_in_cell(COLUMNS, 7));
-        assert_eq!(9, value_in_cell(COLUMNS, 8));
+        assert_eq!(1, value_in_square(COLUMNS, 0));
+        assert_eq!(2, value_in_square(COLUMNS, 1));
+        assert_eq!(3, value_in_square(COLUMNS, 2));
+        assert_eq!(4, value_in_square(COLUMNS, 3));
+        assert_eq!(5, value_in_square(COLUMNS, 4));
+        assert_eq!(6, value_in_square(COLUMNS, 5));
+        assert_eq!(7, value_in_square(COLUMNS, 6));
+        assert_eq!(8, value_in_square(COLUMNS, 7));
+        assert_eq!(9, value_in_square(COLUMNS, 8));
     }
 }

@@ -37,7 +37,7 @@ impl SudokuBoard {
         assert!((0..=8).contains(&row));
         assert!((0..=8).contains(&col));
         let bdx = box_index(row, col);
-        self.state[row].set_cell(value, col);
+        self.state[row].fill_square(value, col);
         self.state[row].mark_in_row(value);
         self.state[col].mark_in_col(value);
         self.state[bdx].mark_in_box(value);
