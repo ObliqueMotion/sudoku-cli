@@ -261,7 +261,6 @@ mod tests {
     #[test]
     fn isolations() {
         const COLUMNS: u64 = 0b0001_0010_0011_0100_0101_0110_0111_1000_1001;
-
         assert_eq!(1, value_in_square(COLUMNS, 0));
         assert_eq!(2, value_in_square(COLUMNS, 1));
         assert_eq!(3, value_in_square(COLUMNS, 2));
