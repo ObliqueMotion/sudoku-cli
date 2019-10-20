@@ -1,7 +1,9 @@
-use crate::sudoku::bitwise::{as_bit, as_bit_inverse, to_box, to_box_inverse, to_square, to_col, to_col_inverse, to_row, to_row_inverse, value_in_square, zero_out_square};
-use std::cell::Cell;
+use crate::sudoku::bitwise::{
+    as_bit, as_bit_inverse, to_box, to_box_inverse, to_col, to_col_inverse, to_row, to_row_inverse,
+    to_square, value_in_square, zero_out_square,
+};
 use std::fmt;
-use crate::sudoku::bitwise;
+use std::cell::Cell;
 
 #[derive(Clone, Debug, Default)]
 pub struct SudokuData(Cell<u64>);
