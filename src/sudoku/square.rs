@@ -14,7 +14,13 @@ pub struct SudokuSquare<'a> {
 
 impl<'a> SudokuSquare<'a> {
     pub fn new(row: &'a SudokuData, col: &'a SudokuData, bx: &'a SudokuData) -> Self {
-        SudokuSquare { value: 0, row, col, bx, rcb_cache: 0 }
+        SudokuSquare {
+            value: 0,
+            row,
+            col,
+            bx,
+            rcb_cache: 0,
+        }
     }
 
     pub fn update_cache(&mut self) {
@@ -27,7 +33,7 @@ impl<'a> SudokuSquare<'a> {
         9 - self.rcb_cache.count_ones()
     }
 
-    pub fn options(&self) -> impl Iterator<Item=usize> {
+    pub fn options(&self) -> impl Iterator<Item = usize> {
         let mut start_value = 1;
         let taken = self.rcb_cache;
         iter::from_fn(move || {

@@ -1,11 +1,11 @@
 use crate::sudoku::bitwise::{
-    as_bit, as_bit_inverse, shift_to_box, shift_to_box_inverse, shift_to_col, shift_to_col_inverse, shift_to_row, shift_to_row_inverse,
-    shift_to_square, value_in_square, zero_out_square,
+    as_bit, as_bit_inverse, shift_to_box, shift_to_box_inverse, shift_to_col, shift_to_col_inverse,
+    shift_to_row, shift_to_row_inverse, shift_to_square, value_in_square, zero_out_square,
 };
-use std::fmt;
 use std::cell::Cell;
+use std::fmt;
 
-static OUTPUT: [&str;10] = [" ", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
+static OUTPUT: [&str; 10] = [" ", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
 
 #[derive(Clone, Debug, Default)]
 pub struct SudokuData(Cell<u64>);
@@ -53,7 +53,6 @@ impl SudokuData {
         self.0
             .set(self.0.get() & shift_to_box_inverse(as_bit_inverse(value)));
     }
-
 
     fn format_square(&self, col: usize) -> &str {
         OUTPUT[value_in_square(self.0.get(), col) as usize]
