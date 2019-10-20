@@ -1,30 +1,20 @@
-const ONE:   u64 = 0b100000000;
-const TWO:   u64 = 0b010000000;
-const THREE: u64 = 0b001000000;
-const FOUR:  u64 = 0b000100000;
-const FIVE:  u64 = 0b000010000;
-const SIX:   u64 = 0b000001000;
-const SEVEN: u64 = 0b000000100;
-const EIGHT: u64 = 0b000000010;
-const NINE:  u64 = 0b000000001;
-
-// The following is the mapping of information onto a 64-vit integer:
+// The following is the mapping of sudoku information onto a 64-bit integer:
 //───────────────────────────────────────────────────────────────────────────────────────────────────────
 // 0b0_______000000000_000000000_000000000___0000___0000___0000___0000___0000___0000___0000___0000___0000
 // | unused |   row   |   col   |   box    | zero | one  | two  | three| four | five |  six | seven| eight
 
-const SHIFT_EIGHT: u64 = 0;
-const SHIFT_SEVEN: u64 = 4;
-const SHIFT_SIX:   u64 = 8;
-const SHIFT_FIVE:  u64 = 12;
-const SHIFT_FOUR:  u64 = 16;
-const SHIFT_THREE: u64 = 20;
-const SHIFT_TWO:   u64 = 24;
-const SHIFT_ONE:   u64 = 28;
-const SHIFT_ZERO:  u64 = 32;
-const SHIFT_BOX:   u64 = 36;
-const SHIFT_COL:   u64 = 45;
 const SHIFT_ROW:   u64 = 54;
+const SHIFT_COL:   u64 = 45;
+const SHIFT_BOX:   u64 = 36;
+const SHIFT_ZERO:  u64 = 32;
+const SHIFT_ONE:   u64 = 28;
+const SHIFT_TWO:   u64 = 24;
+const SHIFT_THREE: u64 = 20;
+const SHIFT_FOUR:  u64 = 16;
+const SHIFT_FIVE:  u64 = 12;
+const SHIFT_SIX:   u64 = 8;
+const SHIFT_SEVEN: u64 = 4;
+const SHIFT_EIGHT: u64 = 0;
 
 const CLEAR_ZERO:  u64 =
     0b1_111111111_111111111_111111111_0000_1111_1111_1111_1111_1111_1111_1111_1111;
@@ -44,6 +34,16 @@ const CLEAR_SEVEN: u64 =
     0b1_111111111_111111111_111111111_1111_1111_1111_1111_1111_1111_1111_0000_1111;
 const CLEAR_EIGHT: u64 =
     0b1_111111111_111111111_111111111_1111_1111_1111_1111_1111_1111_1111_1111_0000;
+
+const ONE:   u64 = 0b100000000;
+const TWO:   u64 = 0b010000000;
+const THREE: u64 = 0b001000000;
+const FOUR:  u64 = 0b000100000;
+const FIVE:  u64 = 0b000010000;
+const SIX:   u64 = 0b000001000;
+const SEVEN: u64 = 0b000000100;
+const EIGHT: u64 = 0b000000010;
+const NINE:  u64 = 0b000000001;
 
 pub fn as_bit(x: u64) -> u64 {
     match x {
