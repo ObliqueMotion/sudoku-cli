@@ -69,7 +69,7 @@ impl fmt::Display for SudokuData {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "│ {} {} {} │ {} {} {} │ {} {} {} │",
+            "┃ {} │ {} │ {} ┃ {} │ {} │ {} ┃ {} │ {} │ {} ┃",
             self.format_cell(0),
             self.format_cell(1),
             self.format_cell(2),

@@ -112,13 +112,13 @@ pub fn to_cell(data: u64, col: usize) -> u64 {
 
 pub fn value_in_cell(data: u64, col: usize) -> u64 {
     match col {
-        0 => (data & !CLEAR_ZERO) >> SHIFT_ZERO,
-        1 => (data & !CLEAR_ONE) >> SHIFT_ONE,
-        2 => (data & !CLEAR_TWO) >> SHIFT_TWO,
+        0 => (data & !CLEAR_ZERO)  >> SHIFT_ZERO,
+        1 => (data & !CLEAR_ONE)   >> SHIFT_ONE,
+        2 => (data & !CLEAR_TWO)   >> SHIFT_TWO,
         3 => (data & !CLEAR_THREE) >> SHIFT_THREE,
-        4 => (data & !CLEAR_FOUR) >> SHIFT_FOUR,
-        5 => (data & !CLEAR_FIVE) >> SHIFT_FIVE,
-        6 => (data & !CLEAR_SIX) >> SHIFT_SIX,
+        4 => (data & !CLEAR_FOUR)  >> SHIFT_FOUR,
+        5 => (data & !CLEAR_FIVE)  >> SHIFT_FIVE,
+        6 => (data & !CLEAR_SIX)   >> SHIFT_SIX,
         7 => (data & !CLEAR_SEVEN) >> SHIFT_SEVEN,
         8 => (data & !CLEAR_EIGHT) >> SHIFT_EIGHT,
         _ => panic!("value_in_cell(): Attempted to get value of cell that is not on board."),
