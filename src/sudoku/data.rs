@@ -1,119 +1,119 @@
+use super::bitwise;
 use std::cell::Cell;
 
-const ROW_SHIFT: u64 = 54;
-const COL_SHIFT: u64 = 45;
-const BOX_SHIFT: u64 = 36;
-const ZERO_SHIFT: u64 = 32;
-const ONE_SHIFT: u64 = 28;
-const TWO_SHIFT: u64 = 24;
-const THREE_SHIFT: u64 = 20;
-const FOUR_SHIFT: u64 = 16;
-const FIVE_SHIFT: u64 = 12;
-const SIX_SHIFT: u64 = 8;
-const SEVEN_SHIFT: u64 = 4;
-const EIGHT_SHIFT: u64 = 0;
+#[derive(Clone, Debug, Default)]
+pub struct SudokuData(Cell<u64>);
 
-const CLEAR_ZERO: u64 =
-    0b1_111111111_111111111_111111111_0000_1111_1111_1111_1111_1111_1111_1111_1111;
-const CLEAR_ONE: u64 =
-    0b1_111111111_111111111_111111111_1111_0000_1111_1111_1111_1111_1111_1111_1111;
-const CLEAR_TWO: u64 =
-    0b1_111111111_111111111_111111111_1111_1111_0000_1111_1111_1111_1111_1111_1111;
-const CLEAR_THREE: u64 =
-    0b1_111111111_111111111_111111111_1111_1111_1111_0000_1111_1111_1111_1111_1111;
-const CLEAR_FOUR: u64 =
-    0b1_111111111_111111111_111111111_1111_1111_1111_1111_0000_1111_1111_1111_1111;
-const CLEAR_FIVE: u64 =
-    0b1_111111111_111111111_111111111_1111_1111_1111_1111_1111_0000_1111_1111_1111;
-const CLEAR_SIX: u64 =
-    0b1_111111111_111111111_111111111_1111_1111_1111_1111_1111_1111_0000_1111_1111;
-const CLEAR_SEVEN: u64 =
-    0b1_111111111_111111111_111111111_1111_1111_1111_1111_1111_1111_1111_0000_1111;
-const CLEAR_EIGHT: u64 =
-    0b1_111111111_111111111_111111111_1111_1111_1111_1111_1111_1111_1111_1111_0000;
+impl SudokuData {
+    pub fn new() -> Self {
+        SudokuData(Cell::new(0))
+    }
 
-pub const fn as_row(x: u64) -> u64 {
-    x << ROW_SHIFT
-}
+    pub fn clear(&self) {
+        self.0.set(0);
+    }
 
-pub const fn as_col(x: u64) -> u64 {
-    x << COL_SHIFT
-}
+    pub fn clear_zero_slot(&self) {
+        self.0.set(bitwise::clear_zero_slot(self.0.get()));
+    }
 
-pub const fn as_box(x: u64) -> u64 {
-    x << BOX_SHIFT
-}
+    pub fn clear_one_slot(&self) {
+        self.0.set(bitwise::clear_one_slot(self.0.get()))
+    }
 
-pub const fn as_zero(x: u64) -> u64 {
-    x << ZERO_SHIFT
-}
+    pub fn clear_two_slot(&self) {
+        self.0.set(bitwise::clear_two_slot(self.0.get()))
+    }
 
-pub const fn clear_zero(x: u64) -> u64 {
-    x & CLEAR_ZERO
-}
+    pub fn clear_three_slot(&self) {
+        self.0.set(bitwise::clear_three_slot(self.0.get()))
+    }
 
-pub const fn as_one(x: u64) -> u64 {
-    x << ONE_SHIFT
-}
+    pub fn clear_four_slot(&self) {
+        self.0.set(bitwise::clear_four_slot(self.0.get()))
+    }
 
-pub const fn clear_one(x: u64) -> u64 {
-    x & CLEAR_ONE
-}
+    pub fn clear_five_slot(&self) {
+        self.0.set(bitwise::clear_five_slot(self.0.get()))
+    }
 
-pub const fn as_two(x: u64) -> u64 {
-    x << TWO_SHIFT
-}
+    pub fn clear_six_slot(&self) {
+        self.0.set(bitwise::clear_six_slot(self.0.get()))
+    }
 
-pub const fn clear_two(x: u64) -> u64 {
-    x & CLEAR_TWO
-}
+    pub fn clear_seven_slot(&self) {
+        self.0.set(bitwise::clear_seven_slot(self.0.get()))
+    }
 
-pub const fn as_three(x: u64) -> u64 {
-    x << THREE_SHIFT
-}
+    pub fn clear_eight_slot(&self) {
+        self.0.set(bitwise::clear_eight_slot(self.0.get()))
+    }
 
-pub const fn clear_three(x: u64) -> u64 {
-    x & CLEAR_THREE
-}
+    pub fn set_zero_slot(&self, x: u64) {
+        self.0.set(self.0.get() | bitwise::to_zero_slot(x));
+    }
 
-pub const fn as_four(x: u64) -> u64 {
-    x << FOUR_SHIFT
-}
+    pub fn set_one_slot(&self, x: u64) {
+        self.0.set(self.0.get() | bitwise::to_one_slot(x));
+    }
 
-pub const fn clear_four(x: u64) -> u64 {
-    x & CLEAR_FOUR
-}
+    pub fn set_two_slot(&self, x: u64) {
+        self.0.set(self.0.get() | bitwise::to_two_slot(x));
+    }
 
-pub const fn as_five(x: u64) -> u64 {
-    x << FIVE_SHIFT
-}
+    pub fn set_three_slot(&self, x: u64) {
+        self.0.set(self.0.get() | bitwise::to_three_slot(x));
+    }
 
-pub const fn clear_five(x: u64) -> u64 {
-    x & CLEAR_FIVE
-}
+    pub fn set_four_slot(&self, x: u64) {
+        self.0.set(self.0.get() | bitwise::to_four_slot(x));
+    }
 
-pub const fn as_six(x: u64) -> u64 {
-    x << SIX_SHIFT
-}
+    pub fn set_five_slot(&self, x: u64) {
+        self.0.set(self.0.get() | bitwise::to_five_slot(x));
+    }
 
-pub const fn clear_six(x: u64) -> u64 {
-    x & CLEAR_SIX
-}
+    pub fn set_six_slot(&self, x: u64) {
+        self.0.set(self.0.get() | bitwise::to_six_slot(x));
+    }
 
-pub const fn as_seven(x: u64) -> u64 {
-    x << SEVEN_SHIFT
-}
+    pub fn set_seven_slot(&self, x: u64) {
+        self.0.set(self.0.get() | bitwise::to_seven_slot(x));
+    }
 
-pub const fn clear_seven(x: u64) -> u64 {
-    x & CLEAR_SEVEN
-}
+    pub fn set_eight_slot(&self, x: u64) {
+        self.0.set(self.0.get() | bitwise::to_eight_slot(x));
+    }
 
-pub const fn as_eight(x: u64) -> u64 {
-    x << EIGHT_SHIFT
-}
+    pub fn add_to_row(&self, x: u64) {
+        self.0
+            .set(self.0.get() | bitwise::as_row(bitwise::as_bit(x)));
+    }
 
-pub const fn clear_eight(x: u64) -> u64 {
-    x & CLEAR_EIGHT
+    pub fn add_to_col(&self, x: u64) {
+        self.0
+            .set(self.0.get() | bitwise::as_col(bitwise::as_bit(x)));
+    }
+
+    pub fn add_to_box(&self, x: u64) {
+        self.0
+            .set(self.0.get() | bitwise::as_box(bitwise::as_bit(x)));
+    }
+
+    pub fn remove_from_row(&self, x: u64) {
+        self.0
+            .set(self.0.get() & bitwise::as_not_row(bitwise::as_not_bit(x)));
+    }
+
+    pub fn remove_from_col(&self, x: u64) {
+        self.0
+            .set(self.0.get() & bitwise::as_not_col(bitwise::as_not_bit(x)));
+    }
+
+    pub fn remove_from_box(&self, x: u64) {
+        self.0
+            .set(self.0.get() & bitwise::as_not_box(bitwise::as_not_bit(x)));
+    }
 }
 
 #[cfg(test)]
@@ -121,100 +121,219 @@ mod tests {
     use super::*;
 
     #[test]
-    fn shifts() {
-        const NINE_SET_BITS: u64 =
-            0b0000000000000000000000000000000000000000000000000000000_111111111;
-        const FOUR_SET_BITS: u64 =
-            0b000000000000000000000000000000000000000000000000000000000000_1111;
+    fn zero_slot() {
+        let data = SudokuData::new();
+        data.set_zero_slot(0b0101);
         assert_eq!(
-            as_row(NINE_SET_BITS),
-            0b0_111111111_000000000_000000000_0000_0000_0000_0000_0000_0000_0000_0000_0000,
+            data.0.get(),
+            0b0_000000000_0000000000_000000000_0101_0000_0000_0000_0000_0000_0000_0000_0000,
         );
-        assert_eq!(
-            as_col(NINE_SET_BITS),
-            0b0_000000000_111111111_000000000_0000_0000_0000_0000_0000_0000_0000_0000_0000,
-        );
-        assert_eq!(
-            as_box(NINE_SET_BITS),
-            0b0_000000000_000000000_111111111_0000_0000_0000_0000_0000_0000_0000_0000_0000,
-        );
-        assert_eq!(
-            as_zero(FOUR_SET_BITS),
-            0b0_000000000_000000000_000000000_1111_0000_0000_0000_0000_0000_0000_0000_0000,
-        );
-        assert_eq!(
-            as_one(FOUR_SET_BITS),
-            0b0_000000000_000000000_000000000_0000_1111_0000_0000_0000_0000_0000_0000_0000,
-        );
-        assert_eq!(
-            as_two(FOUR_SET_BITS),
-            0b0_000000000_000000000_000000000_0000_0000_1111_0000_0000_0000_0000_0000_0000,
-        );
-        assert_eq!(
-            as_three(FOUR_SET_BITS),
-            0b0_000000000_000000000_000000000_0000_0000_0000_1111_0000_0000_0000_0000_0000,
-        );
-        assert_eq!(
-            as_four(FOUR_SET_BITS),
-            0b0_000000000_000000000_000000000_0000_0000_0000_0000_1111_0000_0000_0000_0000,
-        );
-        assert_eq!(
-            as_five(FOUR_SET_BITS),
-            0b0_000000000_000000000_000000000_0000_0000_0000_0000_0000_1111_0000_0000_0000,
-        );
-        assert_eq!(
-            as_six(FOUR_SET_BITS),
-            0b0_000000000_000000000_000000000_0000_0000_0000_0000_0000_0000_1111_0000_0000,
-        );
-        assert_eq!(
-            as_seven(FOUR_SET_BITS),
-            0b0_000000000_000000000_000000000_0000_0000_0000_0000_0000_0000_0000_1111_0000,
-        );
-        assert_eq!(
-            as_eight(FOUR_SET_BITS),
-            0b0_000000000_000000000_000000000_0000_0000_0000_0000_0000_0000_0000_0000_1111,
-        );
+        data.clear_zero_slot();
+        assert_eq!(data.0.get(), 0);
     }
 
     #[test]
-    fn clears() {
-        const ALL_SET_BITS: u64 =
-            0b1_111111111_111111111_111111111_1111_1111_1111_1111_1111_1111_1111_1111_1111;
+    fn one_slot() {
+        let data = SudokuData::new();
+        data.set_one_slot(0b0101);
         assert_eq!(
-            clear_zero(ALL_SET_BITS),
-            0b1_111111111_111111111_111111111_0000_1111_1111_1111_1111_1111_1111_1111_1111,
+            data.0.get(),
+            0b0_000000000_0000000000_000000000_0000_0101_0000_0000_0000_0000_0000_0000_0000,
         );
+        data.clear_one_slot();
+        assert_eq!(data.0.get(), 0);
+    }
+
+    #[test]
+    fn two_slot() {
+        let data = SudokuData::new();
+        data.set_two_slot(0b0101);
         assert_eq!(
-            clear_one(ALL_SET_BITS),
-            0b1_111111111_111111111_111111111_1111_0000_1111_1111_1111_1111_1111_1111_1111,
+            data.0.get(),
+            0b0_000000000_0000000000_000000000_0000_0000_0101_0000_0000_0000_0000_0000_0000,
         );
+        data.clear_two_slot();
+        assert_eq!(data.0.get(), 0);
+    }
+
+    #[test]
+    fn three_slot() {
+        let data = SudokuData::new();
+        data.set_three_slot(0b0101);
         assert_eq!(
-            clear_two(ALL_SET_BITS),
-            0b1_111111111_111111111_111111111_1111_1111_0000_1111_1111_1111_1111_1111_1111,
+            data.0.get(),
+            0b0_000000000_0000000000_000000000_0000_0000_0000_0101_0000_0000_0000_0000_0000,
         );
+        data.clear_three_slot();
+        assert_eq!(data.0.get(), 0);
+    }
+
+    #[test]
+    fn four_slot() {
+        let data = SudokuData::new();
+        data.set_four_slot(0b0101);
         assert_eq!(
-            clear_three(ALL_SET_BITS),
-            0b1_111111111_111111111_111111111_1111_1111_1111_0000_1111_1111_1111_1111_1111,
+            data.0.get(),
+            0b0_000000000_0000000000_000000000_0000_0000_0000_0000_0101_0000_0000_0000_0000,
         );
+        data.clear_four_slot();
+        assert_eq!(data.0.get(), 0);
+    }
+
+    #[test]
+    fn five_slot() {
+        let data = SudokuData::new();
+        data.set_five_slot(0b0101);
         assert_eq!(
-            clear_four(ALL_SET_BITS),
-            0b1_111111111_111111111_111111111_1111_1111_1111_1111_0000_1111_1111_1111_1111,
+            data.0.get(),
+            0b0_000000000_0000000000_000000000_0000_0000_0000_0000_0000_0101_0000_0000_0000,
         );
+        data.clear_five_slot();
+        assert_eq!(data.0.get(), 0);
+    }
+
+    #[test]
+    fn six_slot() {
+        let data = SudokuData::new();
+        data.set_six_slot(0b0101);
         assert_eq!(
-            clear_five(ALL_SET_BITS),
-            0b1_111111111_111111111_111111111_1111_1111_1111_1111_1111_0000_1111_1111_1111,
+            data.0.get(),
+            0b0_000000000_0000000000_000000000_0000_0000_0000_0000_0000_0000_0101_0000_0000,
         );
+        data.clear_six_slot();
+        assert_eq!(data.0.get(), 0);
+    }
+
+    #[test]
+    fn seven_slot() {
+        let data = SudokuData::new();
+        data.set_seven_slot(0b0101);
         assert_eq!(
-            clear_six(ALL_SET_BITS),
-            0b1_111111111_111111111_111111111_1111_1111_1111_1111_1111_1111_0000_1111_1111,
+            data.0.get(),
+            0b0_000000000_0000000000_000000000_0000_0000_0000_0000_0000_0000_0000_0101_0000,
         );
+        data.clear_seven_slot();
+        assert_eq!(data.0.get(), 0);
+    }
+
+    #[test]
+    fn eight_slot() {
+        let data = SudokuData::new();
+        data.set_eight_slot(0b0101);
         assert_eq!(
-            clear_seven(ALL_SET_BITS),
-            0b1_111111111_111111111_111111111_1111_1111_1111_1111_1111_1111_1111_0000_1111,
+            data.0.get(),
+            0b0_000000000_0000000000_000000000_0000_0000_0000_0000_0000_0000_0000_0000_0101,
         );
+        data.clear_eight_slot();
+        assert_eq!(data.0.get(), 0);
+    }
+
+    #[test]
+    fn row_manipulation() {
+        let data = SudokuData::new();
+        data.add_to_row(1);
+        data.add_to_row(3);
+        data.add_to_row(5);
+        data.add_to_row(7);
+        data.add_to_row(9);
+        println!("{:b}", data.0.get());
         assert_eq!(
-            clear_eight(ALL_SET_BITS),
-            0b1_111111111_111111111_111111111_1111_1111_1111_1111_1111_1111_1111_1111_0000,
+            data.0.get(),
+            0b0_101010101_000000000_000000000_0000_0000_0000_0000_0000_0000_0000_0000_0000,
         );
+        data.add_to_row(2);
+        data.add_to_row(4);
+        data.add_to_row(6);
+        data.add_to_row(8);
+        assert_eq!(
+            data.0.get(),
+            0b0_111111111_000000000_000000000_0000_0000_0000_0000_0000_0000_0000_0000_0000,
+        );
+        data.remove_from_row(8);
+        data.remove_from_row(6);
+        data.remove_from_row(4);
+        data.remove_from_row(2);
+        assert_eq!(
+            data.0.get(),
+            0b0_101010101_000000000_000000000_0000_0000_0000_0000_0000_0000_0000_0000_0000,
+        );
+        data.remove_from_row(9);
+        data.remove_from_row(7);
+        data.remove_from_row(5);
+        data.remove_from_row(3);
+        data.remove_from_row(1);
+        assert_eq!(data.0.get(), 0);
+    }
+
+    #[test]
+    fn col_manipulation() {
+        let data = SudokuData::new();
+        data.add_to_col(1);
+        data.add_to_col(3);
+        data.add_to_col(5);
+        data.add_to_col(7);
+        data.add_to_col(9);
+        assert_eq!(
+            data.0.get(),
+            0b0_000000000_101010101_000000000_0000_0000_0000_0000_0000_0000_0000_0000_0000,
+        );
+        data.add_to_col(2);
+        data.add_to_col(4);
+        data.add_to_col(6);
+        data.add_to_col(8);
+        assert_eq!(
+            data.0.get(),
+            0b0_000000000_111111111_000000000_0000_0000_0000_0000_0000_0000_0000_0000_0000,
+        );
+        data.remove_from_col(8);
+        data.remove_from_col(6);
+        data.remove_from_col(4);
+        data.remove_from_col(2);
+        assert_eq!(
+            data.0.get(),
+            0b0_000000000_101010101_000000000_0000_0000_0000_0000_0000_0000_0000_0000_0000,
+        );
+        data.remove_from_col(9);
+        data.remove_from_col(7);
+        data.remove_from_col(5);
+        data.remove_from_col(3);
+        data.remove_from_col(1);
+        assert_eq!(data.0.get(), 0);
+    }
+
+    #[test]
+    fn box_manipulation() {
+        let data = SudokuData::new();
+        data.add_to_box(1);
+        data.add_to_box(3);
+        data.add_to_box(5);
+        data.add_to_box(7);
+        data.add_to_box(9);
+        assert_eq!(
+            data.0.get(),
+            0b0_000000000_000000000_101010101_0000_0000_0000_0000_0000_0000_0000_0000_0000,
+        );
+        data.add_to_box(2);
+        data.add_to_box(4);
+        data.add_to_box(6);
+        data.add_to_box(8);
+        assert_eq!(
+            data.0.get(),
+            0b0_000000000_000000000_111111111_0000_0000_0000_0000_0000_0000_0000_0000_0000,
+        );
+        data.remove_from_box(8);
+        data.remove_from_box(6);
+        data.remove_from_box(4);
+        data.remove_from_box(2);
+        assert_eq!(
+            data.0.get(),
+            0b0_000000000_000000000_101010101_0000_0000_0000_0000_0000_0000_0000_0000_0000,
+        );
+        data.remove_from_box(9);
+        data.remove_from_box(7);
+        data.remove_from_box(5);
+        data.remove_from_box(3);
+        data.remove_from_box(1);
+        assert_eq!(data.0.get(), 0);
     }
 }

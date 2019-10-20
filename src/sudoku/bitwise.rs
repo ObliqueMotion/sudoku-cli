@@ -106,75 +106,75 @@ pub const fn as_not_box(x: u64) -> u64 {
     x << BOX_SHIFT | ((1 << BOX_SHIFT) - 1)
 }
 
-pub const fn as_zero(x: u64) -> u64 {
+pub const fn to_zero_slot(x: u64) -> u64 {
     x << ZERO_SHIFT
 }
 
-pub const fn as_one(x: u64) -> u64 {
+pub const fn to_one_slot(x: u64) -> u64 {
     x << ONE_SHIFT
 }
 
-pub const fn as_two(x: u64) -> u64 {
+pub const fn to_two_slot(x: u64) -> u64 {
     x << TWO_SHIFT
 }
 
-pub const fn as_three(x: u64) -> u64 {
+pub const fn to_three_slot(x: u64) -> u64 {
     x << THREE_SHIFT
 }
 
-pub const fn as_four(x: u64) -> u64 {
+pub const fn to_four_slot(x: u64) -> u64 {
     x << FOUR_SHIFT
 }
 
-pub const fn as_five(x: u64) -> u64 {
+pub const fn to_five_slot(x: u64) -> u64 {
     x << FIVE_SHIFT
 }
 
-pub const fn as_six(x: u64) -> u64 {
+pub const fn to_six_slot(x: u64) -> u64 {
     x << SIX_SHIFT
 }
 
-pub const fn as_seven(x: u64) -> u64 {
+pub const fn to_seven_slot(x: u64) -> u64 {
     x << SEVEN_SHIFT
 }
 
-pub const fn as_eight(x: u64) -> u64 {
+pub const fn to_eight_slot(x: u64) -> u64 {
     x << EIGHT_SHIFT
 }
 
-pub const fn clear_zero(x: u64) -> u64 {
+pub const fn clear_zero_slot(x: u64) -> u64 {
     x & CLEAR_ZERO
 }
 
-pub const fn clear_one(x: u64) -> u64 {
+pub const fn clear_one_slot(x: u64) -> u64 {
     x & CLEAR_ONE
 }
 
-pub const fn clear_two(x: u64) -> u64 {
+pub const fn clear_two_slot(x: u64) -> u64 {
     x & CLEAR_TWO
 }
 
-pub const fn clear_three(x: u64) -> u64 {
+pub const fn clear_three_slot(x: u64) -> u64 {
     x & CLEAR_THREE
 }
 
-pub const fn clear_four(x: u64) -> u64 {
+pub const fn clear_four_slot(x: u64) -> u64 {
     x & CLEAR_FOUR
 }
 
-pub const fn clear_five(x: u64) -> u64 {
+pub const fn clear_five_slot(x: u64) -> u64 {
     x & CLEAR_FIVE
 }
 
-pub const fn clear_six(x: u64) -> u64 {
+pub const fn clear_six_slot(x: u64) -> u64 {
     x & CLEAR_SIX
 }
 
-pub const fn clear_seven(x: u64) -> u64 {
+pub const fn clear_seven_slot(x: u64) -> u64 {
     x & CLEAR_SEVEN
 }
 
-pub const fn clear_eight(x: u64) -> u64 {
+pub const fn clear_eight_slot(x: u64) -> u64 {
     x & CLEAR_EIGHT
 }
 
@@ -201,39 +201,39 @@ mod tests {
             0b0_000000000_000000000_111111111_0000_0000_0000_0000_0000_0000_0000_0000_0000,
         );
         assert_eq!(
-            as_zero(FOUR_SET_BITS),
+            to_zero_slot(FOUR_SET_BITS),
             0b0_000000000_000000000_000000000_1111_0000_0000_0000_0000_0000_0000_0000_0000,
         );
         assert_eq!(
-            as_one(FOUR_SET_BITS),
+            to_one_slot(FOUR_SET_BITS),
             0b0_000000000_000000000_000000000_0000_1111_0000_0000_0000_0000_0000_0000_0000,
         );
         assert_eq!(
-            as_two(FOUR_SET_BITS),
+            to_two_slot(FOUR_SET_BITS),
             0b0_000000000_000000000_000000000_0000_0000_1111_0000_0000_0000_0000_0000_0000,
         );
         assert_eq!(
-            as_three(FOUR_SET_BITS),
+            to_three_slot(FOUR_SET_BITS),
             0b0_000000000_000000000_000000000_0000_0000_0000_1111_0000_0000_0000_0000_0000,
         );
         assert_eq!(
-            as_four(FOUR_SET_BITS),
+            to_four_slot(FOUR_SET_BITS),
             0b0_000000000_000000000_000000000_0000_0000_0000_0000_1111_0000_0000_0000_0000,
         );
         assert_eq!(
-            as_five(FOUR_SET_BITS),
+            to_five_slot(FOUR_SET_BITS),
             0b0_000000000_000000000_000000000_0000_0000_0000_0000_0000_1111_0000_0000_0000,
         );
         assert_eq!(
-            as_six(FOUR_SET_BITS),
+            to_six_slot(FOUR_SET_BITS),
             0b0_000000000_000000000_000000000_0000_0000_0000_0000_0000_0000_1111_0000_0000,
         );
         assert_eq!(
-            as_seven(FOUR_SET_BITS),
+            to_seven_slot(FOUR_SET_BITS),
             0b0_000000000_000000000_000000000_0000_0000_0000_0000_0000_0000_0000_1111_0000,
         );
         assert_eq!(
-            as_eight(FOUR_SET_BITS),
+            to_eight_slot(FOUR_SET_BITS),
             0b0_000000000_000000000_000000000_0000_0000_0000_0000_0000_0000_0000_0000_1111,
         );
     }
@@ -261,39 +261,39 @@ mod tests {
         const ALL_SET_BITS: u64 =
             0b1_111111111_111111111_111111111_1111_1111_1111_1111_1111_1111_1111_1111_1111;
         assert_eq!(
-            clear_zero(ALL_SET_BITS),
+            clear_zero_slot(ALL_SET_BITS),
             0b1_111111111_111111111_111111111_0000_1111_1111_1111_1111_1111_1111_1111_1111,
         );
         assert_eq!(
-            clear_one(ALL_SET_BITS),
+            clear_one_slot(ALL_SET_BITS),
             0b1_111111111_111111111_111111111_1111_0000_1111_1111_1111_1111_1111_1111_1111,
         );
         assert_eq!(
-            clear_two(ALL_SET_BITS),
+            clear_two_slot(ALL_SET_BITS),
             0b1_111111111_111111111_111111111_1111_1111_0000_1111_1111_1111_1111_1111_1111,
         );
         assert_eq!(
-            clear_three(ALL_SET_BITS),
+            clear_three_slot(ALL_SET_BITS),
             0b1_111111111_111111111_111111111_1111_1111_1111_0000_1111_1111_1111_1111_1111,
         );
         assert_eq!(
-            clear_four(ALL_SET_BITS),
+            clear_four_slot(ALL_SET_BITS),
             0b1_111111111_111111111_111111111_1111_1111_1111_1111_0000_1111_1111_1111_1111,
         );
         assert_eq!(
-            clear_five(ALL_SET_BITS),
+            clear_five_slot(ALL_SET_BITS),
             0b1_111111111_111111111_111111111_1111_1111_1111_1111_1111_0000_1111_1111_1111,
         );
         assert_eq!(
-            clear_six(ALL_SET_BITS),
+            clear_six_slot(ALL_SET_BITS),
             0b1_111111111_111111111_111111111_1111_1111_1111_1111_1111_1111_0000_1111_1111,
         );
         assert_eq!(
-            clear_seven(ALL_SET_BITS),
+            clear_seven_slot(ALL_SET_BITS),
             0b1_111111111_111111111_111111111_1111_1111_1111_1111_1111_1111_1111_0000_1111,
         );
         assert_eq!(
-            clear_eight(ALL_SET_BITS),
+            clear_eight_slot(ALL_SET_BITS),
             0b1_111111111_111111111_111111111_1111_1111_1111_1111_1111_1111_1111_1111_0000,
         );
     }
