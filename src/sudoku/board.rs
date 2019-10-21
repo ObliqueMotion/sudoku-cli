@@ -1,13 +1,22 @@
 use super::data::SudokuData;
-use crate::sudoku::square::SudokuSquare;
+use crate::sudoku::bitwise::{as_bit, values_in_box, values_in_col, values_in_row};
 use std::borrow::Borrow;
-use std::{fmt, thread};
 use std::iter::repeat;
 use std::time::Duration;
+use std::{fmt, iter, thread};
 
 #[derive(Clone, Debug, Default)]
 pub struct SudokuBoard {
     state: [SudokuData; 9],
+}
+
+#[derive(Clone)]
+pub struct SudokuSquare(usize, usize, usize);
+
+impl SudokuSquare {
+    pub fn new(row: usize, col: usize, bx: usize) -> Self {
+        SudokuSquare(row, col, bx)
+    }
 }
 
 fn box_index(row: usize, col: usize) -> usize {
@@ -30,20 +39,8 @@ fn box_index(row: usize, col: usize) -> usize {
     }
 }
 
-fn pop_min<'a, 'b: 'a>(v: &'a mut Vec<SudokuSquare<'b>>) -> SudokuSquare<'b> {
-    let mut min = &v[0];
-    let mut index = 0;
-    for i in 1..v.len() {
-        if min < &v[i] {
-            min = &v[i];
-            index = i;
-        }
-    }
-    v.swap_remove(index)
-}
-
 impl SudokuBoard {
-    pub fn insert(self, value: usize, row: usize, col: usize) -> Self {
+    pub fn insert(mut self, value: usize, row: usize, col: usize) -> Self {
         if value == 0 {
             return self;
         }
@@ -58,74 +55,160 @@ impl SudokuBoard {
         self
     }
 
-    pub fn watch_find_all_solutions(&self, millis_per_frame: u64) {
+    fn mark(&mut self, square: &SudokuSquare) {
+        let value = self.value_at(square) as usize;
+        let &SudokuSquare(row, col, bx) = square;
+        self.state[row].mark_in_row(value);
+        self.state[col].mark_in_col(value);
+        self.state[bx].mark_in_box(value);
+    }
+
+    fn unmark(&mut self, square: &SudokuSquare) {
+        let value = self.value_at(square) as usize;
+        let &SudokuSquare(row, col, bx) = square;
+        self.state[row].unmark_from_row(value);
+        self.state[col].unmark_from_col(value);
+        self.state[bx].unmark_from_box(value);
+    }
+
+    fn fill(&mut self, square: &SudokuSquare, value: usize) {
+        self.unmark(square);
+        let &SudokuSquare(row, col, _) = square;
+        self.state[row].fill_square(value, col);
+        self.mark(square);
+    }
+
+    fn clear(&mut self, square: &SudokuSquare) {
+        self.unmark(square);
+        let &SudokuSquare(row, col, _) = square;
+        self.state[row].clear_square(col);
+    }
+
+    fn value_at(&self, &SudokuSquare(row, col, _): &SudokuSquare) -> u64 {
+        self.state[row].value_at(col)
+    }
+
+    fn options(&self, &SudokuSquare(row, col, bx): &SudokuSquare) -> u64 {
+        values_in_row(self.state[row].data())
+            | values_in_col(self.state[col].data())
+            | values_in_box(self.state[bx].data())
+    }
+
+    fn options_iter(&self, square: &SudokuSquare) -> impl Iterator<Item = usize> {
+        let mut start_value = 1;
+        let options = self.options(square);
+        iter::from_fn(move || {
+            for value in start_value..=9 {
+                if 0 == options & as_bit(value) {
+                    start_value = value + 1;
+                    return Some(value);
+                }
+            }
+            return None;
+        })
+    }
+
+    fn count_options(&self, square: &SudokuSquare) -> u32 {
+        9 - self.options(square).count_ones()
+    }
+
+    pub fn watch_find_all_solutions(&mut self, millis_per_frame: u64) {
         let squares = &mut self.fillable_squares();
         self.watch_find_solutions(squares, millis_per_frame);
     }
 
-    pub fn find_all_solutions(&self) -> String {
+    pub fn find_all_solutions(&mut self) -> String {
         let squares = &mut self.fillable_squares();
         self.find_solutions(squares)
     }
 
-    pub fn count_all_solutions(&self) -> usize {
+    pub fn find_all_solutions_compact(&mut self) -> String {
         let squares = &mut self.fillable_squares();
-        Self::count_solutions(squares)
+        self.find_solutions_compact(squares)
     }
 
-    fn watch_find_solutions(&self, squares: &mut Vec<SudokuSquare>, millis_per_frame: u64) {
+    pub fn count_all_solutions(&mut self) -> usize {
+        let squares = &mut self.fillable_squares();
+        self.count_solutions(squares)
+    }
+
+    fn watch_find_solutions(&mut self, squares: &mut Vec<SudokuSquare>, millis_per_frame: u64) {
         use ansi_escapes::ClearScreen;
         thread::sleep(Duration::from_millis(millis_per_frame));
         println!("{}\n{}", ClearScreen, self);
-        if squares.is_empty() { return; }
-        for square in squares.iter_mut() {
-            square.update();
+        if squares.is_empty() {
+            return;
         }
-        let mut square = pop_min(squares);
-        for value in square.options() {
-            square.fill(value);
+        let square = self.next_square(squares);
+        for value in self.options_iter(&square) {
+            self.fill(&square, value);
             self.watch_find_all_solutions(millis_per_frame);
         }
-        square.clear();
+        self.clear(&square);
         squares.push(square);
         thread::sleep(Duration::from_millis(millis_per_frame));
         println!("{}\n{}", ClearScreen, self);
     }
 
-    fn count_solutions(squares: &mut Vec<SudokuSquare>) -> usize {
+    fn count_solutions(&mut self, squares: &mut Vec<SudokuSquare>) -> usize {
         if squares.is_empty() {
             return 1;
         }
-        for square in squares.iter_mut() {
-            square.update();
-        }
         let mut count = 0;
-        let mut square = pop_min(squares);
-        for value in square.options() {
-            square.fill(value);
-            count += Self::count_solutions(squares);
-        }
-        square.clear();
+        let square = self.next_square(squares);
+        self.options_iter(&square).for_each(|value| {
+            self.fill(&square, value);
+            count += self.count_solutions(squares);
+        });
+        self.clear(&square);
         squares.push(square);
         count
     }
 
-    fn find_solutions(&self, squares: &mut Vec<SudokuSquare>) -> String {
+    fn find_solutions(&mut self, squares: &mut Vec<SudokuSquare>) -> String {
         if squares.is_empty() {
             return self.to_string();
         }
-        for square in squares.iter_mut() {
-            square.update();
-        }
         let mut solutions = String::new();
-        let mut square = pop_min(squares);
-        for value in square.options() {
-            square.fill(value);
+        let square = self.next_square(squares);
+        for value in self.options_iter(&square) {
+            self.fill(&square, value);
             solutions += &self.find_solutions(squares);
         }
-        square.clear();
+        self.clear(&square);
         squares.push(square);
         solutions
+    }
+
+    fn find_solutions_compact(&mut self, squares: &mut Vec<SudokuSquare>) -> String {
+        if squares.is_empty() {
+            return self.to_string_compact();
+        }
+        let mut solutions = String::new();
+        let square = self.next_square(squares);
+        for value in self.options_iter(&square) {
+            self.fill(&square, value);
+            solutions += &self.find_solutions_compact(squares);
+        }
+        self.clear(&square);
+        squares.push(square);
+        solutions
+    }
+
+    fn next_square(&self, v: &mut Vec<SudokuSquare>) -> SudokuSquare {
+        let mut index = 0;
+        let mut min_options = self.count_options(&v[0]);
+        for i in 1..v.len() {
+            if min_options == 1 {
+                break;
+            }
+            let curr_options = self.count_options(&v[i]);
+            if curr_options < min_options {
+                min_options = curr_options;
+                index = i;
+            }
+        }
+        v.swap_remove(index)
     }
 
     pub fn fillable_squares(&self) -> Vec<SudokuSquare> {
@@ -134,13 +217,7 @@ impl SudokuBoard {
             let row_data = &self.state[row];
             for col in 0..9 {
                 if 0 == row_data.value_at(col) {
-                    squares.push(SudokuSquare::new(
-                        row,
-                        col,
-                        row_data,
-                        &self.state[col],
-                        &self.state[box_index(row, col)],
-                    ));
+                    squares.push(SudokuSquare::new(row, col, box_index(row, col)));
                 }
             }
         }
@@ -149,7 +226,7 @@ impl SudokuBoard {
 
     pub fn to_string(&self) -> String {
         let mut string = String::new();
-        string.push('\n');
+        string.push_str("\n");
         string.push_str("  ╔═══════════╦═══════════╦═══════════╗\n");
         string.push_str(&self.state[0].to_string());
         string.push_str("  ║───┼───┼───║───┼───┼───║───┼───┼───║\n");
@@ -169,7 +246,16 @@ impl SudokuBoard {
         string.push_str("  ║───┼───┼───║───┼───┼───║───┼───┼───║\n");
         string.push_str(&self.state[8].to_string());
         string.push_str("  ╚═══════════╩═══════════╩═══════════╝\n");
-        string.push('\n');
+        string.push_str("\n");
+        string
+    }
+
+    pub fn to_string_compact(&self) -> String {
+        let mut string = String::with_capacity(82);
+        for i in 0..=8 {
+            string.push_str(&self.state[i].to_string_compact());
+        }
+        string.push_str("\n");
         string
     }
 }

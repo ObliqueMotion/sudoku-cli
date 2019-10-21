@@ -2,12 +2,14 @@ pub mod sudoku;
 use std::time::Instant;
 use sudoku::board::SudokuBoard;
 
-static HARD_PUZZLE: &str = include_str!("../puzzles/easy");
+static HARD_PUZZLE: &str = include_str!("../puzzles/1mil");
 
 fn main() {
-    let board = SudokuBoard::from(HARD_PUZZLE);
+    let mut board = SudokuBoard::from(HARD_PUZZLE);
     println!("\n{}", board);
     let now = Instant::now();
-    board.watch_find_all_solutions(100);
-    println!("\n\n{} second(s).\n\n", now.elapsed().as_secs_f32())
+    let solutions = board.count_all_solutions();
+    let time = now.elapsed();
+    println!("  Found: {} solution(s)", solutions);
+    println!("\n\n  {} second(s).\n\n", time.as_secs_f64())
 }
