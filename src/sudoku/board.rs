@@ -1,8 +1,9 @@
 use super::data::SudokuData;
 use crate::sudoku::square::SudokuSquare;
 use std::borrow::Borrow;
-use std::fmt;
+use std::{fmt, thread};
 use std::iter::repeat;
+use std::time::Duration;
 
 #[derive(Clone, Debug, Default)]
 pub struct SudokuBoard {
@@ -57,32 +58,74 @@ impl SudokuBoard {
         self
     }
 
-    pub fn solve(&self) -> usize {
-        let mut squares = self.fillable_squares();
-        self._solve(&mut squares)
+    pub fn watch_find_all_solutions(&self, millis_per_frame: u64) {
+        let squares = &mut self.fillable_squares();
+        self.watch_find_solutions(squares, millis_per_frame);
     }
 
-    fn _solve(&self, squares: &mut Vec<SudokuSquare>) -> usize {
+    pub fn find_all_solutions(&self) -> String {
+        let squares = &mut self.fillable_squares();
+        self.find_solutions(squares)
+    }
+
+    pub fn count_all_solutions(&self) -> usize {
+        let squares = &mut self.fillable_squares();
+        Self::count_solutions(squares)
+    }
+
+    fn watch_find_solutions(&self, squares: &mut Vec<SudokuSquare>, millis_per_frame: u64) {
+        use ansi_escapes::ClearScreen;
+        thread::sleep(Duration::from_millis(millis_per_frame));
+        println!("{}\n{}", ClearScreen, self);
+        if squares.is_empty() { return; }
+        for square in squares.iter_mut() {
+            square.update();
+        }
+        let mut square = pop_min(squares);
+        for value in square.options() {
+            square.fill(value);
+            self.watch_find_all_solutions(millis_per_frame);
+        }
+        square.clear();
+        squares.push(square);
+        thread::sleep(Duration::from_millis(millis_per_frame));
+        println!("{}\n{}", ClearScreen, self);
+    }
+
+    fn count_solutions(squares: &mut Vec<SudokuSquare>) -> usize {
         if squares.is_empty() {
             return 1;
         }
         for square in squares.iter_mut() {
             square.update();
         }
-        self.try_all_options(squares)
-    }
-
-    fn try_all_options(&self, squares: &mut Vec<SudokuSquare>) -> usize {
         let mut count = 0;
-
         let mut square = pop_min(squares);
-        for option in square.options() {
-            square.fill(option);
-            count += self._solve(squares);
+        for value in square.options() {
+            square.fill(value);
+            count += Self::count_solutions(squares);
         }
         square.clear();
         squares.push(square);
         count
+    }
+
+    fn find_solutions(&self, squares: &mut Vec<SudokuSquare>) -> String {
+        if squares.is_empty() {
+            return self.to_string();
+        }
+        for square in squares.iter_mut() {
+            square.update();
+        }
+        let mut solutions = String::new();
+        let mut square = pop_min(squares);
+        for value in square.options() {
+            square.fill(value);
+            solutions += &self.find_solutions(squares);
+        }
+        square.clear();
+        squares.push(square);
+        solutions
     }
 
     pub fn fillable_squares(&self) -> Vec<SudokuSquare> {
@@ -102,6 +145,32 @@ impl SudokuBoard {
             }
         }
         squares
+    }
+
+    pub fn to_string(&self) -> String {
+        let mut string = String::new();
+        string.push('\n');
+        string.push_str("  ╔═══════════╦═══════════╦═══════════╗\n");
+        string.push_str(&self.state[0].to_string());
+        string.push_str("  ║───┼───┼───║───┼───┼───║───┼───┼───║\n");
+        string.push_str(&self.state[1].to_string());
+        string.push_str("  ║───┼───┼───║───┼───┼───║───┼───┼───║\n");
+        string.push_str(&self.state[2].to_string());
+        string.push_str("  ╠═══════════╬═══════════╬═══════════╣\n");
+        string.push_str(&self.state[3].to_string());
+        string.push_str("  ║───┼───┼───║───┼───┼───║───┼───┼───║\n");
+        string.push_str(&self.state[4].to_string());
+        string.push_str("  ║───┼───┼───║───┼───┼───║───┼───┼───║\n");
+        string.push_str(&self.state[5].to_string());
+        string.push_str("  ╠═══════════╬═══════════╬═══════════╣\n");
+        string.push_str(&self.state[6].to_string());
+        string.push_str("  ║───┼───┼───║───┼───┼───║───┼───┼───║\n");
+        string.push_str(&self.state[7].to_string());
+        string.push_str("  ║───┼───┼───║───┼───┼───║───┼───┼───║\n");
+        string.push_str(&self.state[8].to_string());
+        string.push_str("  ╚═══════════╩═══════════╩═══════════╝\n");
+        string.push('\n');
+        string
     }
 }
 

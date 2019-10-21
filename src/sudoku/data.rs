@@ -61,6 +61,21 @@ impl SudokuData {
     fn format_square(&self, col: usize) -> &str {
         OUTPUT[value_in_square(self.0.get(), col) as usize]
     }
+
+    pub fn to_string(&self) -> String {
+        format!(
+            "  ║ {} │ {} │ {} ║ {} │ {} │ {} ║ {} │ {} │ {} ║\n",
+            self.format_square(0),
+            self.format_square(1),
+            self.format_square(2),
+            self.format_square(3),
+            self.format_square(4),
+            self.format_square(5),
+            self.format_square(6),
+            self.format_square(7),
+            self.format_square(8),
+        )
+    }
 }
 
 impl fmt::Display for SudokuData {
