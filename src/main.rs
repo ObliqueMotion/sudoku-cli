@@ -1,7 +1,7 @@
 pub mod sudoku;
 use sudoku::board::SudokuBoard;
 
-static HARD_PUZZLE: &str = include_str!("../puzzles/hard2");
+static HARD_PUZZLE: &str = include_str!("../puzzles/1mil");
 
 fn main() {
     let board = SudokuBoard::default()
@@ -12,4 +12,5 @@ fn main() {
 
     let board2 = SudokuBoard::from(HARD_PUZZLE);
     println!("\n{}", board2);
+    println!("found {} solutions.", board2.solve());
 }

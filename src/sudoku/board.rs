@@ -1,7 +1,9 @@
 use super::data::SudokuData;
 use std::borrow::Borrow;
-use std::fmt;
+use std::{fmt, thread};
 use std::iter::repeat;
+use crate::sudoku::square::SudokuSquare;
+use std::time::Duration;
 
 #[derive(Clone, Debug, Default)]
 pub struct SudokuBoard {
@@ -43,6 +45,70 @@ impl SudokuBoard {
         self.state[bx].mark_in_box(value);
         self
     }
+
+    pub fn solve(&self) -> usize {
+        let mut squares = self.fillable_squares();
+        self._solve(&mut squares)
+    }
+
+    fn _solve(&self, squares: &mut Vec<SudokuSquare>) -> usize {
+        //thread::sleep(Duration::from_millis(50));
+        //println!("{}", self);
+        if squares.is_empty() {
+            return 1;
+        }
+        for square in squares.iter_mut() {
+            square.update_data();
+        }
+        self.try_all_options(squares)
+        //thread::sleep(Duration::from_millis(50));
+        //println!({}", self);
+    }
+
+
+    fn try_all_options(&self, squares: &mut Vec<SudokuSquare>) -> usize {
+        let mut count = 0;
+
+        let mut square = pop_min(squares);
+        for option in square.options() {
+            square.fill(option);
+            count += self._solve(squares);
+        }
+        square.clear();
+        squares.push(square);
+        count
+    }
+
+    pub fn fillable_squares(&self) -> Vec<SudokuSquare> {
+        let mut squares = Vec::with_capacity(81);
+        for row in 0..9 {
+            let row_data = &self.state[row];
+            for col in 0..9 {
+                if 0 == row_data.value_at(col) {
+                   squares.push(SudokuSquare::new(
+                       row,
+                       col,
+                       row_data,
+                       &self.state[col],
+                       &self.state[box_index(row, col)],
+                   ));
+                }
+            }
+        }
+        squares
+    }
+}
+
+fn pop_min<'a, 'b: 'a>(v:  &'a mut Vec<SudokuSquare<'b>>) -> SudokuSquare<'b> {
+    let mut min = &v[0];
+    let mut mindex = 0;
+    for i in 1..v.len() {
+        if min < &v[i] {
+            min = &v[i];
+            mindex = i;
+        }
+    }
+    v.swap_remove(mindex)
 }
 
 impl fmt::Display for SudokuBoard {
@@ -96,4 +162,15 @@ fn board_indices() -> impl Iterator<Item = (usize, usize)> {
         .chain(repeat(7).take(9))
         .chain(repeat(8).take(9))
         .zip((0..9).cycle())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn fillable_squares() {
+        let board = SudokuBoard::from("--------------3-85--1-2-------5-7-----4---1---9-------5------73--2-1--------4---9");
+        let squares = board.fillable_squares();
+        assert_eq!(81 - 17, squares.len());
+    }
 }

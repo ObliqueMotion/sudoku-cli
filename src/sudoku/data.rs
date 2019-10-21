@@ -54,6 +54,10 @@ impl SudokuData {
             .set(self.0.get() & shift_to_box_inverse(as_bit_inverse(value)));
     }
 
+    pub fn value_at(&self, col: usize) -> u64 {
+        value_in_square(self.0.get(), col)
+    }
+
     fn format_square(&self, col: usize) -> &str {
         OUTPUT[value_in_square(self.0.get(), col) as usize]
     }

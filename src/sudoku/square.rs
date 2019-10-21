@@ -1,41 +1,52 @@
-use std::iter;
+use std::{iter, fmt};
 
 use crate::sudoku::bitwise::{as_bit, values_in_box, values_in_col, values_in_row};
 use crate::sudoku::data::SudokuData;
+use std::cmp::Ordering;
 
-#[derive(Debug)]
+
+// 0b_____0000_____0000_____0000_____0000____
+//     | options  |   row  |   col  |  value  |
+
+const SHIFT_OPTIONS: usize = 12;
+const SHIFT_ROW: usize = 8;
+const SHIFT_COL: usize = 4;
+
+#[derive(Clone)]
 pub struct SudokuSquare<'a> {
-    value: usize,
-    row: &'a SudokuData,
-    col: &'a SudokuData,
-    bx: &'a SudokuData,
-    rcb_cache: u64,
+    row_data: &'a SudokuData,
+    col_data: &'a SudokuData,
+    box_data: &'a SudokuData,
+    square_data: usize,
+    rcb_cache: usize,
 }
 
 impl<'a> SudokuSquare<'a> {
-    pub fn new(row: &'a SudokuData, col: &'a SudokuData, bx: &'a SudokuData) -> Self {
+    pub fn new(row: usize, col: usize, row_data: &'a SudokuData, col_data: &'a SudokuData, box_data: &'a SudokuData) -> Self {
         SudokuSquare {
-            value: 0,
-            row,
-            col,
-            bx,
+            row_data,
+            col_data,
+            box_data,
+            square_data: ((row << SHIFT_ROW) | (col << SHIFT_COL)) as usize,
             rcb_cache: 0,
         }
     }
 
-    pub fn update_cache(&mut self) {
-        self.rcb_cache = values_in_row(self.row.data())
-            | values_in_col(self.col.data())
-            | values_in_box(self.bx.data());
+    pub fn update_data(&mut self) {
+        self.rcb_cache = (values_in_row(self.row_data.data())
+            | values_in_col(self.col_data.data())
+            | values_in_box(self.box_data.data())) as usize;
+        self.square_data &= 0b_0000_1111_1111_1111;
+        self.square_data |= ((self.rcb_cache.count_ones()) << SHIFT_OPTIONS) as usize;
     }
 
     pub fn count_options(&self) -> u32 {
-        9 - self.rcb_cache.count_ones()
+        9 - (self.square_data >> SHIFT_OPTIONS) as u32
     }
 
     pub fn options(&self) -> impl Iterator<Item = usize> {
         let mut start_value = 1;
-        let taken = self.rcb_cache;
+        let taken = self.rcb_cache as u64;
         iter::from_fn(move || {
             for value in start_value..=9 {
                 if 0 == taken & as_bit(value) {
@@ -47,27 +58,71 @@ impl<'a> SudokuSquare<'a> {
         })
     }
 
+    pub fn value(&self) -> usize {
+        self.square_data & 0b_1111
+    }
+
+    pub fn col(&self) -> usize {
+        (self.square_data >> SHIFT_COL) & 0b_1111
+    }
+
     pub fn unmark(&self) {
-        self.row.unmark_from_row(self.value);
-        self.col.unmark_from_col(self.value);
-        self.bx.unmark_from_box(self.value);
+        let value = self.value();
+        self.row_data.unmark_from_row(value);
+        self.col_data.unmark_from_col(value);
+        self.box_data.unmark_from_box(value);
     }
 
     pub fn mark(&self) {
-        self.row.mark_in_row(self.value);
-        self.col.mark_in_col(self.value);
-        self.bx.mark_in_box(self.value);
+        let value = self.value();
+        self.row_data.mark_in_row(value);
+        self.col_data.mark_in_col(value);
+        self.box_data.mark_in_box(value);
     }
 
     pub fn fill(&mut self, value: usize) {
-        self.unmark();
-        self.value = value;
+        self.clear();
+        self.square_data |= value;
+        self.row_data.fill_square(value, self.col());
         self.mark();
     }
 
     pub fn clear(&mut self) {
         self.unmark();
-        self.value = 0;
+        self.row_data.clear_square(self.col());
+        self.square_data &= 0b_1111_1111_1111_0000;
+    }
+}
+
+impl PartialEq for SudokuSquare<'_> {
+    fn eq(&self, other: &Self) -> bool {
+        self.square_data == other.square_data
+    }
+}
+
+impl Eq for SudokuSquare<'_> {}
+
+impl PartialOrd for SudokuSquare<'_> {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for SudokuSquare<'_> {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.square_data.cmp(&other.square_data)
+    }
+}
+
+impl fmt::Display for SudokuSquare<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.value())
+    }
+}
+
+impl fmt::Debug for SudokuSquare<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.value())
     }
 }
 
@@ -81,11 +136,12 @@ mod tests {
         let col_data = SudokuData::default();
         let box_data = SudokuData::default();
 
-        let mut square = SudokuSquare::new(&row_data, &col_data, &box_data);
+        let mut square = SudokuSquare::new(0, 0, &row_data, &col_data, &box_data);
+        println!("data = {}", square.square_data);
         assert_eq!(9, square.count_options());
         assert_eq!(9, square.options().count());
 
-        square.update_cache();
+        square.update_data();
         assert_eq!(9, square.count_options());
         assert_eq!(9, square.options().count());
 
@@ -95,7 +151,7 @@ mod tests {
         col_data.mark_in_col(7);
         box_data.mark_in_box(9);
 
-        square.update_cache();
+        square.update_data();
         assert_eq!(4, square.count_options());
         assert_eq!(vec![2, 4, 6, 8], square.options().collect::<Vec<_>>());
     }
@@ -107,8 +163,8 @@ mod tests {
         let box1 = SudokuData::default();
         let box2 = SudokuData::default();
 
-        let mut square1 = SudokuSquare::new(&row1, &col1, &box1);
-        let mut square2 = SudokuSquare::new(&row1, &col1, &box2);
+        let mut square1 = SudokuSquare::new(0, 0,&row1, &col1, &box1);
+        let mut square2 = SudokuSquare::new(0, 4, &row1, &col1, &box2);
         assert_eq!(9, square1.count_options());
         assert_eq!(9, square1.options().count());
         assert_eq!(9, square2.count_options());
@@ -128,10 +184,31 @@ mod tests {
         assert_eq!(9, square2.count_options());
         assert_eq!(9, square2.options().count());
 
-        square1.update_cache();
-        square2.update_cache();
+        square1.update_data();
+        square2.update_data();
 
         assert_eq!(vec![4, 6, 8], square1.options().collect::<Vec<_>>());
         assert_eq!(vec![2, 8, 9], square2.options().collect::<Vec<_>>());
+    }
+
+    #[test]
+    fn fill_square() {
+        let row = SudokuData::default();
+        let col = SudokuData::default();
+        let bx  = SudokuData::default();
+
+        let mut square = SudokuSquare::new(0, 0, &row, &col, &bx);
+        square.clear();
+        square.update_data();
+        assert_eq!(vec![1, 2, 3, 4, 5, 6, 7, 8, 9], square.options().collect::<Vec<_>>());
+        square.fill(5);
+        square.update_data();
+        assert_eq!(vec![1, 2, 3, 4, 6, 7, 8, 9], square.options().collect::<Vec<_>>());
+        square.fill(3);
+        square.update_data();
+        assert_eq!(vec![1, 2, 4, 5, 6, 7, 8, 9], square.options().collect::<Vec<_>>());
+        square.clear();
+        square.update_data();
+        assert_eq!(vec![1, 2, 3, 4, 5, 6, 7, 8, 9], square.options().collect::<Vec<_>>());
     }
 }
