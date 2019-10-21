@@ -407,10 +407,11 @@ mod tests {
         );
         assert_eq!(1, board.count_solutions());
         let mut board = SudokuBoard::from(
-            ".75.....42139.5.7...8.....9..241....4...........8.24..3...9.7...5.3..6988.....31."
+            ".75.....42139.5.7...8.....9..241....4...........8.24..3...9.7...5.3..6988.....31.",
         );
         assert_eq!(35, board.count_solutions());
-        let mut board = SudokuBoard::from("
+        let mut board = SudokuBoard::from(
+            "
             -  -  -  -  -  -  -  -  -
             -  -  -  -  -  3  -  8  5
             -  -  1  -  2  -  -  -  -
@@ -420,7 +421,8 @@ mod tests {
             5  -  -  -  -  -  -  7  3
             -  -  2  -  1  -  -  -  -
             -  -  -  -  4  -  -  -  9
-        ");
+        ",
+        );
         assert_eq!(1, board.count_solutions());
     }
 
