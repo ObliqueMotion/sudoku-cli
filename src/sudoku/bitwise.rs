@@ -6,12 +6,12 @@
 const SHIFT_ROW: u64 = 54;
 const SHIFT_COL: u64 = 45;
 const SHIFT_BOX: u64 = 36;
-const SHIFT_SQUARE: [u64; 9] = [32, 28, 24, 20, 16, 12, 8, 4, 0];
-
 const FOUR_SET_BITS: u64 = 0b1111;
 const NINE_SET_BITS: u64 = 0b111111111;
 
-const CLEAR: [u64; 9] = [
+static SHIFT_SQUARE: [u64; 9] = [32, 28, 24, 20, 16, 12, 8, 4, 0];
+
+static CLEAR: [u64; 9] = [
     0b1_111111111_111111111_111111111_0000_1111_1111_1111_1111_1111_1111_1111_1111,
     0b1_111111111_111111111_111111111_1111_0000_1111_1111_1111_1111_1111_1111_1111,
     0b1_111111111_111111111_111111111_1111_1111_0000_1111_1111_1111_1111_1111_1111,
@@ -23,7 +23,7 @@ const CLEAR: [u64; 9] = [
     0b1_111111111_111111111_111111111_1111_1111_1111_1111_1111_1111_1111_1111_0000,
 ];
 
-const BITS: [u64; 10] = [
+static BITS: [u64; 10] = [
     0b000000000,
     0b100000000,
     0b010000000,
@@ -36,11 +36,11 @@ const BITS: [u64; 10] = [
     0b000000001,
 ];
 
-pub const fn as_bit(x: usize) -> u64 {
+pub fn as_bit(x: usize) -> u64 {
     BITS[x]
 }
 
-pub const fn as_bit_inverse(x: usize) -> u64 {
+pub fn as_bit_inverse(x: usize) -> u64 {
     !BITS[x]
 }
 
@@ -68,7 +68,7 @@ pub const fn shift_to_box_inverse(x: u64) -> u64 {
     x << SHIFT_BOX | ((1 << SHIFT_BOX) - 1)
 }
 
-pub const fn shift_to_square(value: usize, col: usize) -> u64 {
+pub fn shift_to_square(value: usize, col: usize) -> u64 {
     (value as u64) << SHIFT_SQUARE[col]
 }
 
@@ -84,11 +84,11 @@ pub const fn values_in_box(data: u64) -> u64 {
     (data >> SHIFT_BOX) & NINE_SET_BITS
 }
 
-pub const fn value_in_square(data: u64, col: usize) -> u64 {
+pub fn value_in_square(data: u64, col: usize) -> u64 {
     (data >> SHIFT_SQUARE[col]) & FOUR_SET_BITS
 }
 
-pub const fn zero_out_square(data: u64, col: usize) -> u64 {
+pub fn zero_out_square(data: u64, col: usize) -> u64 {
     data & CLEAR[col]
 }
 

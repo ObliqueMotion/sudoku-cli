@@ -1,5 +1,5 @@
 use super::data::SudokuData;
-use crate::sudoku::bitwise::{as_bit, values_in_box, values_in_col, values_in_row};
+use crate::sudoku::bitwise::as_bit;
 use std::borrow::Borrow;
 use std::iter::repeat;
 use std::time::Duration;
@@ -89,9 +89,9 @@ impl SudokuBoard {
     }
 
     fn options(&self, &SudokuSquare(row, col, bx): &SudokuSquare) -> u64 {
-        values_in_row(self.state[row].data())
-            | values_in_col(self.state[col].data())
-            | values_in_box(self.state[bx].data())
+        self.state[row].values_in_row()
+            | self.state[col].values_in_col()
+            | self.state[bx].values_in_box()
     }
 
     fn options_iter(&self, square: &SudokuSquare) -> impl Iterator<Item = usize> {

@@ -1,3 +1,4 @@
+use crate::sudoku::bitwise;
 use crate::sudoku::bitwise::{
     as_bit, as_bit_inverse, shift_to_box, shift_to_box_inverse, shift_to_col, shift_to_col_inverse,
     shift_to_row, shift_to_row_inverse, shift_to_square, value_in_square, zero_out_square,
@@ -49,6 +50,18 @@ impl SudokuData {
 
     pub fn unmark_from_box(&mut self, value: usize) {
         self.0 = self.0 & shift_to_box_inverse(as_bit_inverse(value));
+    }
+
+    pub fn values_in_row(&self) -> u64 {
+        bitwise::values_in_row(self.0)
+    }
+
+    pub fn values_in_col(&self) -> u64 {
+        bitwise::values_in_col(self.0)
+    }
+
+    pub fn values_in_box(&self) -> u64 {
+        bitwise::values_in_box(self.0)
     }
 
     pub fn value_at(&self, col: usize) -> u64 {
