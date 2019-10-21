@@ -1,9 +1,8 @@
-use std::{iter, fmt};
+use std::{fmt, iter};
 
 use crate::sudoku::bitwise::{as_bit, values_in_box, values_in_col, values_in_row};
 use crate::sudoku::data::SudokuData;
 use std::cmp::Ordering;
-
 
 // 0b_____0000_____0000_____0000_____0000____
 //     | options  |   row  |   col  |  value  |
@@ -22,7 +21,13 @@ pub struct SudokuSquare<'a> {
 }
 
 impl<'a> SudokuSquare<'a> {
-    pub fn new(row: usize, col: usize, row_data: &'a SudokuData, col_data: &'a SudokuData, box_data: &'a SudokuData) -> Self {
+    pub fn new(
+        row: usize,
+        col: usize,
+        row_data: &'a SudokuData,
+        col_data: &'a SudokuData,
+        box_data: &'a SudokuData,
+    ) -> Self {
         SudokuSquare {
             row_data,
             col_data,
@@ -163,7 +168,7 @@ mod tests {
         let box1 = SudokuData::default();
         let box2 = SudokuData::default();
 
-        let mut square1 = SudokuSquare::new(0, 0,&row1, &col1, &box1);
+        let mut square1 = SudokuSquare::new(0, 0, &row1, &col1, &box1);
         let mut square2 = SudokuSquare::new(0, 4, &row1, &col1, &box2);
         assert_eq!(9, square1.count_options());
         assert_eq!(9, square1.options().count());
@@ -195,20 +200,32 @@ mod tests {
     fn fill_square() {
         let row = SudokuData::default();
         let col = SudokuData::default();
-        let bx  = SudokuData::default();
+        let bx = SudokuData::default();
 
         let mut square = SudokuSquare::new(0, 0, &row, &col, &bx);
         square.clear();
         square.update_data();
-        assert_eq!(vec![1, 2, 3, 4, 5, 6, 7, 8, 9], square.options().collect::<Vec<_>>());
+        assert_eq!(
+            vec![1, 2, 3, 4, 5, 6, 7, 8, 9],
+            square.options().collect::<Vec<_>>()
+        );
         square.fill(5);
         square.update_data();
-        assert_eq!(vec![1, 2, 3, 4, 6, 7, 8, 9], square.options().collect::<Vec<_>>());
+        assert_eq!(
+            vec![1, 2, 3, 4, 6, 7, 8, 9],
+            square.options().collect::<Vec<_>>()
+        );
         square.fill(3);
         square.update_data();
-        assert_eq!(vec![1, 2, 4, 5, 6, 7, 8, 9], square.options().collect::<Vec<_>>());
+        assert_eq!(
+            vec![1, 2, 4, 5, 6, 7, 8, 9],
+            square.options().collect::<Vec<_>>()
+        );
         square.clear();
         square.update_data();
-        assert_eq!(vec![1, 2, 3, 4, 5, 6, 7, 8, 9], square.options().collect::<Vec<_>>());
+        assert_eq!(
+            vec![1, 2, 3, 4, 5, 6, 7, 8, 9],
+            square.options().collect::<Vec<_>>()
+        );
     }
 }

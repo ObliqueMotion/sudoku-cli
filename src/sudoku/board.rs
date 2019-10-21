@@ -1,9 +1,9 @@
 use super::data::SudokuData;
-use std::borrow::Borrow;
-use std::{fmt, thread};
-use std::iter::repeat;
 use crate::sudoku::square::SudokuSquare;
+use std::borrow::Borrow;
+use std::iter::repeat;
 use std::time::Duration;
+use std::{fmt, thread};
 
 #[derive(Clone, Debug, Default)]
 pub struct SudokuBoard {
@@ -28,6 +28,18 @@ fn box_index(row: usize, col: usize) -> usize {
             _________ => 8,
         },
     }
+}
+
+fn pop_min<'a, 'b: 'a>(v: &'a mut Vec<SudokuSquare<'b>>) -> SudokuSquare<'b> {
+    let mut min = &v[0];
+    let mut index = 0;
+    for i in 1..v.len() {
+        if min < &v[i] {
+            min = &v[i];
+            index = i;
+        }
+    }
+    v.swap_remove(index)
 }
 
 impl SudokuBoard {
@@ -65,7 +77,6 @@ impl SudokuBoard {
         //println!({}", self);
     }
 
-
     fn try_all_options(&self, squares: &mut Vec<SudokuSquare>) -> usize {
         let mut count = 0;
 
@@ -85,30 +96,18 @@ impl SudokuBoard {
             let row_data = &self.state[row];
             for col in 0..9 {
                 if 0 == row_data.value_at(col) {
-                   squares.push(SudokuSquare::new(
-                       row,
-                       col,
-                       row_data,
-                       &self.state[col],
-                       &self.state[box_index(row, col)],
-                   ));
+                    squares.push(SudokuSquare::new(
+                        row,
+                        col,
+                        row_data,
+                        &self.state[col],
+                        &self.state[box_index(row, col)],
+                    ));
                 }
             }
         }
         squares
     }
-}
-
-fn pop_min<'a, 'b: 'a>(v:  &'a mut Vec<SudokuSquare<'b>>) -> SudokuSquare<'b> {
-    let mut min = &v[0];
-    let mut mindex = 0;
-    for i in 1..v.len() {
-        if min < &v[i] {
-            min = &v[i];
-            mindex = i;
-        }
-    }
-    v.swap_remove(mindex)
 }
 
 impl fmt::Display for SudokuBoard {
@@ -169,7 +168,9 @@ mod tests {
     use super::*;
     #[test]
     fn fillable_squares() {
-        let board = SudokuBoard::from("--------------3-85--1-2-------5-7-----4---1---9-------5------73--2-1--------4---9");
+        let board = SudokuBoard::from(
+            "--------------3-85--1-2-------5-7-----4---1---9-------5------73--2-1--------4---9",
+        );
         let squares = board.fillable_squares();
         assert_eq!(81 - 17, squares.len());
     }
