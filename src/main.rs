@@ -2,7 +2,7 @@ pub mod sudoku;
 use std::time::Instant;
 use sudoku::board::SudokuBoard;
 
-static HARD_PUZZLE: &str = include_str!("../puzzles/50k");
+static HARD_PUZZLE: &str = include_str!("../puzzles/1mil");
 
 fn main() {
     let mut board = SudokuBoard::from(HARD_PUZZLE);

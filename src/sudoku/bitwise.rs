@@ -5,13 +5,13 @@
 const SHIFT_ROW: u64 = 54;
 const SHIFT_COL: u64 = 45;
 const SHIFT_BOX: u64 = 36;
-static SHIFT_SQUARE: [u64; 9] = [32, 28, 24, 20, 16, 12, 8, 4, 0];
+const SHIFT_SQUARE: [u64; 9] = [32, 28, 24, 20, 16, 12, 8, 4, 0];
 
 const FOUR_SET_BITS: u64 = 0b1111;
 const NINE_SET_BITS: u64 = 0b111111111;
 
 /// Clear a value by bitwise & with one of these.
-static CLEAR: [u64; 9] = [
+const CLEAR: [u64; 9] = [
     0b1_111111111_111111111_111111111_0000_1111_1111_1111_1111_1111_1111_1111_1111,
     0b1_111111111_111111111_111111111_1111_0000_1111_1111_1111_1111_1111_1111_1111,
     0b1_111111111_111111111_111111111_1111_1111_0000_1111_1111_1111_1111_1111_1111,
@@ -24,7 +24,7 @@ static CLEAR: [u64; 9] = [
 ];
 
 /// A bit begin set represents a value being present in a row, column, or box.
-static BITS: [u64; 10] = [
+const BITS: [u64; 10] = [
     0b000000000, // Padding
     0b100000000, // One
     0b010000000, // Two
@@ -40,14 +40,14 @@ static BITS: [u64; 10] = [
 /// Returns a set bit to mark a value as being present in a row, column, or box.
 /// Arg value: 7
 /// Return: 0b000000100
-pub(super) fn as_bit(value: usize) -> u64 {
+pub(super) const fn as_bit(value: usize) -> u64 {
     BITS[value]
 }
 
 /// Returns a set bit to unmark a value as being present in a row, column, or box.
 /// Arg value: 7
 /// Return: 0b1111111111111111111111111111111111111111111111111111111_111111011
-pub(super) fn as_bit_inverse(value: usize) -> u64 {
+pub(super) const fn as_bit_inverse(value: usize) -> u64 {
     !BITS[value]
 }
 
@@ -97,7 +97,7 @@ pub(super) const fn shift_to_box_inverse(bits: u64) -> u64 {
 /// Arg value: 0b1001
 /// Arg col: 4
 /// Return: 0b0_000000000_000000000_000000000_0000_0000_0000_1001_0000_0000_0000_0000_0000
-pub(super) fn shift_to_square(value: usize, col: usize) -> u64 {
+pub(super) const fn shift_to_square(value: usize, col: usize) -> u64 {
     (value as u64) << SHIFT_SQUARE[col]
 }
 
@@ -126,7 +126,7 @@ pub(super) const fn values_in_box(data: u64) -> u64 {
 /// Arg data: 0b0001_0010_0011_0100_0101_0110_0111_1000_1001
 /// Arg col: 7
 /// Return: 0b0111
-pub(super) fn value_in_square(data: u64, col: usize) -> u64 {
+pub(super) const fn value_in_square(data: u64, col: usize) -> u64 {
     (data >> SHIFT_SQUARE[col]) & FOUR_SET_BITS
 }
 
@@ -134,7 +134,7 @@ pub(super) fn value_in_square(data: u64, col: usize) -> u64 {
 /// Arg data: 0b0001_0010_0011_0100_0101_0110_0111_1000_1001
 /// Arg col: 7
 /// Return: 0b0001_0010_0011_0100_0101_0110_0000_1000_1001
-pub(super) fn zero_out_square(data: u64, col: usize) -> u64 {
+pub(super) const fn zero_out_square(data: u64, col: usize) -> u64 {
     data & CLEAR[col]
 }
 
