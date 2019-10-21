@@ -1,9 +1,8 @@
 use super::data::SudokuData;
 use crate::sudoku::square::SudokuSquare;
 use std::borrow::Borrow;
+use std::fmt;
 use std::iter::repeat;
-use std::time::Duration;
-use std::{fmt, thread};
 
 #[derive(Clone, Debug, Default)]
 pub struct SudokuBoard {
@@ -64,17 +63,13 @@ impl SudokuBoard {
     }
 
     fn _solve(&self, squares: &mut Vec<SudokuSquare>) -> usize {
-        //thread::sleep(Duration::from_millis(50));
-        //println!("{}", self);
         if squares.is_empty() {
             return 1;
         }
         for square in squares.iter_mut() {
-            square.update_data();
+            square.update();
         }
         self.try_all_options(squares)
-        //thread::sleep(Duration::from_millis(50));
-        //println!({}", self);
     }
 
     fn try_all_options(&self, squares: &mut Vec<SudokuSquare>) -> usize {
