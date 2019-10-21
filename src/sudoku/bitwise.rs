@@ -133,7 +133,7 @@ pub(super) fn value_in_square(data: u64, col: usize) -> u64 {
 /// Zeros the value in a square's location.
 /// Arg data: 0b0001_0010_0011_0100_0101_0110_0111_1000_1001
 /// Arg col: 7
-/// Return:   0b0001_0010_0011_0100_0101_0110_0000_1000_1001
+/// Return: 0b0001_0010_0011_0100_0101_0110_0000_1000_1001
 pub(super) fn zero_out_square(data: u64, col: usize) -> u64 {
     data & CLEAR[col]
 }
