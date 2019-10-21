@@ -11,10 +11,10 @@ static OUTPUT: [&str; 10] = [" ", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
 /// A struct that represents a portion of the board's data in a u64.
 /// where row, col, box are each 9 bits that represent if a value (1-9) is present in that section.
 /// where (zero - eight) represent the current value in a given square.
-///───────────────────────────────────────────────────────────────────────────────────────────────────────
+/// ──────────────────────────────────────────────────────────────────────────────────────────────────────
 /// 0b0_______000000000_000000000_000000000___0000___0000___0000___0000___0000___0000___0000___0000___0000
 /// | unused |   row   |   col   |   box    | zero | one  | two  | three| four | five |  six | seven| eight
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Copy, Debug, Default)]
 pub(super) struct SudokuData(u64);
 
 impl SudokuData {
