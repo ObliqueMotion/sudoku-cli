@@ -5,6 +5,11 @@ use std::iter::repeat;
 use std::time::Duration;
 use std::{fmt, iter, thread};
 
+/// The number of bytes in the string representation of the board.
+const BOARD_STRING_LENGTH: usize = 1682;
+/// The number of bytes in the compact string repreentation of the board.
+const COMPACT_BOARD_STRING_LENGTH: usize = 82;
+
 //                Sudoku Board
 //     c0  c1  c2  c3  c4  c5  c6  c7  c8
 //    ╔═══════════╦═══════════╦═══════════╗
@@ -21,31 +26,33 @@ use std::{fmt, iter, thread};
 // r8 ║           ║           ║           ║
 //    ╚═══════════╩═══════════╩═══════════╝
 
-/// A struct that represents a sudoku board. The board's state consists of 9 SudokuData structs.
-/// The board design is compact so that it can be trivially copied into another thread.
-/// ──────────────────────────────────────────────────────────────────────────────────────────
-/// board[0] contains if a value present in row[0], col[0], box[0], and all the values in row[0]
-/// board[1] contains if a value present in row[1], col[1], box[1], and all the values in row[1]
-/// board[2] contains if a value present in row[2], col[2], box[2], and all the values in row[2]
-/// board[3] contains if a value present in row[3], col[3], box[3], and all the values in row[3]
-/// board[4] contains if a value present in row[4], col[4], box[4], and all the values in row[4]
-/// board[5] contains if a value present in row[5], col[5], box[5], and all the values in row[5]
-/// board[6] contains if a value present in row[6], col[6], box[6], and all the values in row[6]
-/// board[7] contains if a value present in row[7], col[7], box[7], and all the values in row[7]
-/// board[8] contains if a value present in row[8], col[8], box[8], and all the values in row[8]
+/// A struct that represents a sudoku board. The board's state consists of 9 `SudokuData` structs.  
+/// The board design is compact so that it can be trivially copied into another thread.  
+/// ──────────────────────────────────────────────────────────────────────────────────────────  
+/// ```text
+/// board[0] contains if a value present in row[0], col[0], box[0], and all the values in row[0]  
+/// board[1] contains if a value present in row[1], col[1], box[1], and all the values in row[1]  
+/// board[2] contains if a value present in row[2], col[2], box[2], and all the values in row[2]  
+/// board[3] contains if a value present in row[3], col[3], box[3], and all the values in row[3]  
+/// board[4] contains if a value present in row[4], col[4], box[4], and all the values in row[4]  
+/// board[5] contains if a value present in row[5], col[5], box[5], and all the values in row[5]  
+/// board[6] contains if a value present in row[6], col[6], box[6], and all the values in row[6]  
+/// board[7] contains if a value present in row[7], col[7], box[7], and all the values in row[7]  
+/// board[8] contains if a value present in row[8], col[8], box[8], and all the values in row[8]  
+/// ```
 #[derive(Clone, Copy, Debug, Default)]
 pub struct SudokuBoard {
     board: [SudokuData; 9],
 }
 
-/// A sudoku square represents a value that is in a particular (row, col, box).
-/// A square's location is fully determined by (row, col) alone,
-/// but the box is important information for validation.
+/// A sudoku square represents a value that is in a particular `(row, col, box)`.  
+/// A square's location is fully determined by `(row, col)` alone,  
+/// but the box is important information for validation.  
 #[derive(Clone)]
 pub struct SudokuSquare(usize, usize, usize);
 
 impl SudokuSquare {
-    /// Creates a new square.
+    /// Creates a new `SudokuSquare`.
     pub fn new(row: usize, col: usize, bx: usize) -> Self {
         SudokuSquare(row, col, bx)
     }
@@ -99,7 +106,7 @@ impl SudokuBoard {
         self.mark(square);
     }
 
-    /// Inserts a new value onto the board at a given (row, col).
+    /// Inserts a new value onto the board at a given `(row, col)`.
     pub fn insert(mut self, value: usize, row: usize, col: usize) -> Self {
         if value == 0 {
             return self;
@@ -124,19 +131,19 @@ impl SudokuBoard {
         self.board[row].value_at(col)
     }
 
-    /// Returns a set of bits representing the options for a given square.
-    /// For example, if 0b101010101 is returned, this means that
-    /// { 1, 3, 5, 7, 9 } are already present in the row/col/box and that
-    /// { 2, 4, 6, 8 } are available options.
+    /// Returns a set of bits representing the options for a given square.  
+    /// For example, if `0b101010101` is returned, this means that  
+    /// `{ 1, 3, 5, 7, 9 }` are already present in the row/col/box and that  
+    /// `{ 2, 4, 6, 8 }` are available options.  
     fn options(&self, &SudokuSquare(row, col, bx): &SudokuSquare) -> u64 {
         self.board[row].values_in_row()
             | self.board[col].values_in_col()
             | self.board[bx].values_in_box()
     }
 
-    /// Returns an iterator over every value that is an available option for this square.
-    /// For example, if { 1, 3, 5, 7, 9 } are already present in this square's row/col/box,
-    /// then this will return an iterator over { 2 } -> { 4 } -> { 6 } -> { 8 } -> None
+    /// Returns an iterator over every value that is an available option for this square.  
+    /// For example, if `{ 1, 3, 5, 7, 9 }` are already present in this square's row/col/box,  
+    /// then this will return an iterator over `{ 2 } -> { 4 } -> { 6 } -> { 8 } -> None`  
     fn options_iter(&self, square: &SudokuSquare) -> impl Iterator<Item = usize> {
         let mut start_value = 1;
         let options = self.options(square);
@@ -151,9 +158,9 @@ impl SudokuBoard {
         })
     }
 
-    /// Returns the count of available options for this square.
-    /// For example, if { 1, 3, 5, 7, 9 } are already present in this square's row/col/box,
-    /// then this will return 4, because { 2, 4, 6, 8 } are all available options.
+    /// Returns the count of available options for this square.  
+    /// For example, if { 1, 3, 5, 7, 9 } are already present in this square's row/col/box,  
+    /// then this will return 4, because { 2, 4, 6, 8 } are all available options.  
     fn count_options(&self, square: &SudokuSquare) -> u32 {
         9 - self.options(square).count_ones()
     }
@@ -180,7 +187,7 @@ impl SudokuBoard {
         count
     }
 
-    /// watch the board find solutions in the terminal.
+    /// Watch the board find solutions in the terminal.
     pub fn watch_find_solutions(&mut self, millis_per_frame: u64) {
         let squares = &mut self.fillable_squares();
         self.watch_find_all_solutions(squares, millis_per_frame);
@@ -227,13 +234,13 @@ impl SudokuBoard {
         solutions
     }
 
-    /// Find all solutions and return each solved board as a compact string of 81 contiguous digits (1..=9)
+    /// Find all solutions and return each solved board as a compact string of 81 contiguous digits `(1..=9)`
     pub fn find_solutions_compact(&mut self) -> String {
         let squares = &mut self.fillable_squares();
         self.find_all_solutions_compact(squares)
     }
 
-    /// Find all solutions and return each solved board as a compact string of 81 contiguous digits (1..=9)
+    /// Find all solutions and return each solved board as a compact string of 81 contiguous digits `(1..=9)`
     fn find_all_solutions_compact(&mut self, squares: &mut Vec<SudokuSquare>) -> String {
         if squares.is_empty() {
             return self.to_string_compact();
@@ -249,9 +256,9 @@ impl SudokuBoard {
         solutions
     }
 
-    /// Returns the next best square in which to try a value, removing it from the vector.
-    /// That is the first encountered square if only 1 option.
-    /// Or else any square that is tied for the least number of options.
+    /// Returns the next best square in which to try a value, removing it from the vector.  
+    /// That is the first encountered square if only 1 option.  
+    /// Or else any square that is tied for the least number of options.  
     fn next_square(&self, v: &mut Vec<SudokuSquare>) -> SudokuSquare {
         let mut index = 0;
         let mut min_options = self.count_options(&v[0]);
@@ -284,7 +291,7 @@ impl SudokuBoard {
 
     /// Returns a string representation of the board.
     pub fn to_string(&self) -> String {
-        let mut string = String::new();
+        let mut string = String::with_capacity(BOARD_STRING_LENGTH);
         string.push_str("\n");
         string.push_str("  ╔═══════════╦═══════════╦═══════════╗\n");
         string.push_str(&self.board[0].to_string());
@@ -309,9 +316,9 @@ impl SudokuBoard {
         string
     }
 
-    /// Returns a compact string representation of the board: 81 contiguous digits (1..=9)
+    /// Returns a compact string representation of the board: 81 contiguous digits `(1..=9)`
     pub fn to_string_compact(&self) -> String {
-        let mut string = String::with_capacity(83);
+        let mut string = String::with_capacity(COMPACT_BOARD_STRING_LENGTH);
         for i in 0..=8 {
             string.push_str(&self.board[i].to_string_compact());
         }
@@ -345,21 +352,25 @@ impl fmt::Display for SudokuBoard {
     }
 }
 
-/// Creates a board from a string of integers.
-/// Ignores whitespace and treats non-digits as a blank square.
-/// Example Board String #1:
-/// .75.....42139.5.7...8.7...9..2417...4...6...1...8324..3...9.7...5.3.46988.....31.
-/// Example Board String #2:
-/// -  -  -  -  -  -  -  -  -
-/// -  -  -  -  -  3  -  8  5
-/// -  -  1  -  2  -  -  -  -
-/// -  -  -  5  -  7  -  -  -
-/// -  -  4  -  -  -  1  -  -
-/// -  9  -  -  -  -  -  -  -
-/// 5  -  -  -  -  -  -  7  3
-/// -  -  2  -  1  -  -  -  -
-/// -  -  -  -  4  -  -  -  9
 impl<B: Borrow<str>> From<B> for SudokuBoard {
+    /// Creates a board from a string of integers.  
+    /// Ignores whitespace and treats non-digits as a blank square.  
+    /// Example Board String #1:  
+    /// ```text
+    /// .75.....42139.5.7...8.7...9..2417...4...6...1...8324..3...9.7...5.3.46988.....31.
+    /// ```
+    /// Example Board String #2:  
+    /// ```text
+    /// -  -  -  -  -  -  -  -  -
+    /// -  -  -  -  -  3  -  8  5
+    /// -  -  1  -  2  -  -  -  -
+    /// -  -  -  5  -  7  -  -  -
+    /// -  -  4  -  -  -  1  -  -
+    /// -  9  -  -  -  -  -  -  -
+    /// 5  -  -  -  -  -  -  7  3
+    /// -  -  2  -  1  -  -  -  -
+    /// -  -  -  -  4  -  -  -  9
+    /// ```
     fn from(input: B) -> Self {
         input
             .borrow()
