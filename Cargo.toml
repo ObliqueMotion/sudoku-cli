@@ -11,6 +11,8 @@ lto = true
 codegen-units = 1
 
 [dependencies]
+clap = "2.33.0"
 rayon = "1.2.0"
 num_cpus = "1.10.1"
+structopt = "0.3.3"
 ansi-escapes = "0.1.0"
