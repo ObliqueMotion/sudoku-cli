@@ -230,26 +230,30 @@ impl SudokuBoard {
     /// Watch the board find solutions in the terminal.
     pub fn watch_find_solutions(&mut self, millis_per_frame: u64) {
         let squares = &mut self.fillable_squares();
-        self.watch_find_all_solutions(squares, millis_per_frame);
+        let mut count = 0;
+        self.watch_find_all_solutions(squares, millis_per_frame, &mut count);
     }
+    
 
     /// Watch the board find solutions in the terminal.
-    fn watch_find_all_solutions(&mut self, squares: &mut Vec<SudokuSquare>, millis_per_frame: u64) {
+    fn watch_find_all_solutions(&mut self, squares: &mut Vec<SudokuSquare>, millis_per_frame: u64, count: &mut usize) {
         use ansi_escapes::ClearScreen;
         thread::sleep(Duration::from_millis(millis_per_frame));
-        println!("{}\n{}", ClearScreen, self);
         if squares.is_empty() {
+            println!("{}\n{}\n  Solutions: {}", ClearScreen, self, count);
+            *count += 1;
             return;
         }
+        println!("{}\n{}\n  Solutions: {}", ClearScreen, self, count);
         let square = self.next_square(squares);
         for value in self.options_iter(&square) {
             self.fill(&square, value);
-            self.watch_find_all_solutions(squares, millis_per_frame);
+            self.watch_find_all_solutions(squares, millis_per_frame, count);
         }
         self.clear(&square);
         squares.push(square);
         thread::sleep(Duration::from_millis(millis_per_frame));
-        println!("{}\n{}", ClearScreen, self);
+        println!("{}\n{}\n  Solutions: {}", ClearScreen, self, count);
     }
 
     /// Find all solutions sequentially and return each solved board in a String sequentially.
