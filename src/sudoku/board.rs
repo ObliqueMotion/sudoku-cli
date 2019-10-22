@@ -310,8 +310,8 @@ impl SudokuBoard {
                 self.fill(&square, value);
                 solutions.push_str(&self.find_all_solutions_seq(squares));
             });
-            self.clear(&square);
         }
+        self.clear(&square);
         squares.push(square);
         solutions
     }
@@ -370,8 +370,8 @@ impl SudokuBoard {
                 self.fill(&square, value);
                 solutions.push_str(&self.find_all_solutions_compact_seq(squares));
             });
-            self.clear(&square);
         }
+        self.clear(&square);
         squares.push(square);
         solutions
     }
