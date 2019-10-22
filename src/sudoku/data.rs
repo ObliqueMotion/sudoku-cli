@@ -15,67 +15,67 @@ static OUTPUT: [&str; 10] = [" ", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
 /// 0b0_______000000000_000000000_000000000___0000___0000___0000___0000___0000___0000___0000___0000___0000
 /// | unused |   row   |   col   |   box    | zero | one  | two  | three| four | five |  six | seven| eight
 #[derive(Clone, Copy, Debug, Default)]
-pub(super) struct SudokuData(u64);
+pub struct SudokuData(u64);
 
 impl SudokuData {
     /// Clears the value in a given square.
-    pub(super) fn clear_square(&mut self, col: usize) {
+    pub fn clear_square(&mut self, col: usize) {
         self.0 = zero_out_square(self.0, col);
     }
 
     /// Fills a given square with a value.
-    pub(super) fn fill_square(&mut self, value: usize, col: usize) {
+    pub fn fill_square(&mut self, value: usize, col: usize) {
         self.clear_square(col);
         self.0 = self.0 | shift_to_square(value, col)
     }
 
     /// Marks a value as being present in the row.
-    pub(super) fn mark_in_row(&mut self, value: usize) {
+    pub fn mark_in_row(&mut self, value: usize) {
         self.0 = self.0 | shift_to_row(as_bit(value));
     }
 
     /// Marks a value as being present in the column.
-    pub(super) fn mark_in_col(&mut self, value: usize) {
+    pub fn mark_in_col(&mut self, value: usize) {
         self.0 = self.0 | shift_to_col(as_bit(value));
     }
 
     /// Marks a value as being present in the box.
-    pub(super) fn mark_in_box(&mut self, value: usize) {
+    pub fn mark_in_box(&mut self, value: usize) {
         self.0 = self.0 | shift_to_box(as_bit(value));
     }
 
     /// Unmarks a value from being present in the row.
-    pub(super) fn unmark_from_row(&mut self, value: usize) {
+    pub fn unmark_from_row(&mut self, value: usize) {
         self.0 = self.0 & shift_to_row_inverse(as_bit_inverse(value));
     }
 
     /// Unmarks a value from being present in the column.
-    pub(super) fn unmark_from_col(&mut self, value: usize) {
+    pub fn unmark_from_col(&mut self, value: usize) {
         self.0 = self.0 & shift_to_col_inverse(as_bit_inverse(value));
     }
 
     /// Unmarks a value from being present in the box.
-    pub(super) fn unmark_from_box(&mut self, value: usize) {
+    pub fn unmark_from_box(&mut self, value: usize) {
         self.0 = self.0 & shift_to_box_inverse(as_bit_inverse(value));
     }
 
     /// Returns a set of bits representing the values currently in the row.
-    pub(super) fn values_in_row(&self) -> u64 {
+    pub fn values_in_row(&self) -> u64 {
         bitwise::values_in_row(self.0)
     }
 
     /// Returns a set of bits representing the values currently in the column.
-    pub(super) fn values_in_col(&self) -> u64 {
+    pub fn values_in_col(&self) -> u64 {
         bitwise::values_in_col(self.0)
     }
 
     /// Returns a set of bits representing the values currently in the box.
-    pub(super) fn values_in_box(&self) -> u64 {
+    pub fn values_in_box(&self) -> u64 {
         bitwise::values_in_box(self.0)
     }
 
     /// Returns the value at a particular square.
-    pub(super) fn value_at(&self, col: usize) -> u64 {
+    pub fn value_at(&self, col: usize) -> u64 {
         value_in_square(self.0, col)
     }
 
@@ -85,7 +85,7 @@ impl SudokuData {
     }
 
     /// Formats the row as it would look on a sudoku board.
-    pub(super) fn to_string(&self) -> String {
+    pub fn to_string(&self) -> String {
         format!(
             "  ║ {} │ {} │ {} ║ {} │ {} │ {} ║ {} │ {} │ {} ║\n",
             self.format_square(0),
@@ -101,7 +101,7 @@ impl SudokuData {
     }
 
     /// Formats every value in the row in a single line with no formatting.
-    pub(super) fn to_string_compact(&self) -> String {
+    pub fn to_string_compact(&self) -> String {
         let mut string = String::with_capacity(9);
         for i in 0..=8 {
             string.push_str(self.format_square(i));

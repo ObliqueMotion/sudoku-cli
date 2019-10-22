@@ -1,3 +1,3 @@
-pub(self) mod bitwise;
+pub mod bitwise;
 pub mod board;
-pub(self) mod data;
+pub mod data;

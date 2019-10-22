@@ -42,7 +42,7 @@ const COMPACT_BOARD_STRING_LENGTH: usize = 82;
 /// board[7] contains if a value present in row[7], col[7], box[7], and all the values in row[7]  
 /// board[8] contains if a value present in row[8], col[8], box[8], and all the values in row[8]  
 /// ```
-#[derive(Clone, Copy, Debug, Default)]
+#[derive(Clone, Debug, Default)]
 pub struct SudokuBoard {
     board: [SudokuData; 9],
 }
@@ -51,7 +51,7 @@ pub struct SudokuBoard {
 /// A square's location is fully determined by `(row, col)` alone,  
 /// but the box is important information for validation.  
 #[derive(Clone)]
-pub struct SudokuSquare(usize, usize, usize);
+struct SudokuSquare(usize, usize, usize);
 
 impl SudokuSquare {
     /// Creates a new `SudokuSquare`.
@@ -396,7 +396,7 @@ impl SudokuBoard {
     }
 
     /// Returns a vector of all fillable squares on the board.
-    pub fn fillable_squares(&self) -> Vec<SudokuSquare> {
+    fn fillable_squares(&self) -> Vec<SudokuSquare> {
         let mut squares = Vec::with_capacity(81);
         for row in 0..9 {
             let row_data = &self.board[row];
