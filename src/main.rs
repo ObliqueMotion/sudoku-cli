@@ -73,7 +73,7 @@ fn main() {
         Action::Count => {
             println!("{}", board);
             let now = Instant::now();
-            let count = board.count_solutions_par();
+            let count = board.count_solutions();
             let elapsed = now.elapsed();
             println!("  Found: {} solution(s)\n", count);
             println!("  Time:  {} second(s)\n", elapsed.as_secs_f64());
@@ -82,12 +82,12 @@ fn main() {
             println!("\n\n  Sudoku Board:\n\n{}", board);
             let now = Instant::now();
             let solutions = if opt.compact { 
-               board.find_solutions_compact_par()
+               board.find_solutions_compact()
             } else {
-               board.find_solutions_par()
+               board.find_solutions()
             };
             let elapsed = now.elapsed();
-            let count = board.count_solutions_par();
+            let count = board.count_solutions();
             println!("  Solutions:\n\n{}\n\n", solutions);
             println!("  Found: {} solution(s)\n", count);
             println!("  Time:  {} second(s)\n", elapsed.as_secs_f64());
@@ -98,12 +98,12 @@ fn main() {
             println!("\n\n  Sudoku Board:\n\n{}", board);
             let now = Instant::now();
             let solutions = if opt.compact {
-                board.find_solutions_compact_par()
+                board.find_solutions_compact()
             } else {
-                board.find_solutions_par()
+                board.find_solutions()
             };
             let elapsed = now.elapsed();
-            let count = board.count_solutions_par();
+            let count = board.count_solutions();
             file.write_all(solutions.as_bytes()).unwrap();
             println!("  Found: {} solution(s)\n", count);
             println!("  Time:  {} second(s)\n", elapsed.as_secs_f64());
