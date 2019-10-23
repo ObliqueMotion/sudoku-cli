@@ -1,7 +1,17 @@
-// The following is the mapping of sudoku information onto a 64-bit integer:
-//───────────────────────────────────────────────────────────────────────────────────────────────────────
-// 0b0_______000000000_000000000_000000000___0000___0000___0000___0000___0000___0000___0000___0000___0000
-// | unused |   row   |   col   |   box    | zero | one  | two  | three| four | five |  six | seven| eight
+//! A collection of bitwise functions specific to manipulating and reading data on a sudoku board.
+//! ```text
+//! Semantic mapping onto 64-bit integer:
+//! ───────────────────────────────────────────────────────────────────────────────────────────────────────
+//! 0b0_______000000000_000000000_000000000___0000___0000___0000___0000___0000___0000___0000___0000___0000
+//! ───────────────────────────────────────────────────────────────────────────────────────────────────────
+//! | unused |   row   |   col   |   box    | zero | one  | two  | three| four | five |  six | seven| eight
+//! ───────────────────────────────────────────────────────────────────────────────────────────────────────
+//!          |─── value is present if set ──|──── values represent the values in each square of a row ────|
+//! ───────────────────────────────────────────────────────────────────────────────────────────────────────
+//!          | 110000011 means {1, 2, 8, 9} | 
+//! ───────────────────────────────────────────────────────────────────────────────────────────────────────
+//! ```
+
 const SHIFT_ROW: u64 = 54;
 const SHIFT_COL: u64 = 45;
 const SHIFT_BOX: u64 = 36;
@@ -37,103 +47,131 @@ const BITS: [u64; 10] = [
     0b000000001, // Nine
 ];
 
-/// Returns a set bit to mark a value as being present in a row, column, or box.
-/// Arg value: 7
-/// Return: 0b000000100
+/// Returns a set bit to mark a value as being present in a row, column, or box.  
+/// ```text
+/// Arg value: 7  
+/// Return: 0b000000100  
+/// ```
 pub const fn as_bit(value: usize) -> u64 {
     BITS[value]
 }
 
-/// Returns a set bit to unmark a value as being present in a row, column, or box.
-/// Arg value: 7
-/// Return: 0b1111111111111111111111111111111111111111111111111111111_111111011
+/// Returns all bits set except one to unmark a value as being present in a row, column, or box.  
+/// ```text
+/// Arg value: 7  
+/// Return: 0b1111111111111111111111111111111111111111111111111111111_111111011  
+/// ```
 pub const fn as_bit_inverse(value: usize) -> u64 {
     !BITS[value]
 }
 
-/// Shifts a set of bits to the row location.
-/// Arg bits: 0b101010101
-/// Return: 0b0_101010101_000000000_000000000_0000_0000_0000_0000_0000_0000_0000_0000_0000
+/// Shifts a set of bits to the row location.  
+/// ```text
+/// Arg bits: 0b101010101  
+/// Return: 0b0_101010101_000000000_000000000_0000_0000_0000_0000_0000_0000_0000_0000_0000  
+/// ```
 pub const fn shift_to_row(bits: u64) -> u64 {
     bits << SHIFT_ROW
 }
 
-/// Shifts a set of bits to the col location.
-/// Arg bits: 0b101010101
-/// Return: 0b0_000000000_101010101_000000000_0000_0000_0000_0000_0000_0000_0000_0000_0000
+/// Shifts a set of bits to the col location.  
+/// ```text
+/// Arg bits: 0b101010101  
+/// Return: 0b0_000000000_101010101_000000000_0000_0000_0000_0000_0000_0000_0000_0000_0000  
+/// ```
 pub const fn shift_to_col(bits: u64) -> u64 {
     bits << SHIFT_COL
 }
 
-/// Shifts a set of bits to the box location.
-/// Arg bits: 0b101010101
-/// Return: 0b0_000000000_000000000_101010101_0000_0000_0000_0000_0000_0000_0000_0000_0000
+/// Shifts a set of bits to the box location.  
+/// ```text
+/// Arg bits: 0b101010101  
+/// Return: 0b0_000000000_000000000_101010101_0000_0000_0000_0000_0000_0000_0000_0000_0000  
+/// ```
 pub const fn shift_to_box(bits: u64) -> u64 {
     bits << SHIFT_BOX
 }
 
-/// Shifts a set of bits to the row location, filling with 1s from the right instead of 0s.
-/// Arg bits: 0b101010101
-/// Return: 0b0_101010101_111111111_111111111_1111_1111_1111_1111_1111_1111_1111_1111_1111
+/// Shifts a set of bits to the row location, filling with ones from the right instead of zeros.  
+/// ```text
+/// Arg bits: 0b101010101  
+/// Return: 0b0_101010101_111111111_111111111_1111_1111_1111_1111_1111_1111_1111_1111_1111  
+/// ```
 pub const fn shift_to_row_inverse(bits: u64) -> u64 {
     bits << SHIFT_ROW | ((1 << SHIFT_ROW) - 1)
 }
 
-/// Shifts a set of bits to the col location, filling with 1s from the right instead of 0s.
-/// Arg bits: 0b101010101
-/// Return: 0b0_000000000_101010101_111111111_1111_1111_1111_1111_1111_1111_1111_1111_1111
+/// Shifts a set of bits to the col location, filling with ones from the right instead of zeros.  
+/// ```text
+/// Arg bits: 0b101010101  
+/// Return: 0b0_000000000_101010101_111111111_1111_1111_1111_1111_1111_1111_1111_1111_1111  
+/// ```
 pub const fn shift_to_col_inverse(bits: u64) -> u64 {
     bits << SHIFT_COL | ((1 << SHIFT_COL) - 1)
 }
 
-/// Shifts a set of bits to the box location, filling with 1s from the right instead of 0s.
-/// Arg bits: 0b101010101
-/// Return: 0b0_000000000_000000000_101010101_1111_1111_1111_1111_1111_1111_1111_1111_1111
+/// Shifts a set of bits to the box location, filling with ones from the right instead of zeros.  
+/// ```text
+/// Arg bits: 0b101010101  
+/// Return: 0b0_000000000_000000000_101010101_1111_1111_1111_1111_1111_1111_1111_1111_1111  
+/// ```
 pub const fn shift_to_box_inverse(bits: u64) -> u64 {
     bits << SHIFT_BOX | ((1 << SHIFT_BOX) - 1)
 }
 
-/// Shifts a set of bits to a square's location.
-/// Arg value: 0b1001
-/// Arg col: 4
-/// Return: 0b0_000000000_000000000_000000000_0000_0000_0000_1001_0000_0000_0000_0000_0000
+/// Shifts a set of bits to a square's location.  
+/// ```text
+/// Arg value: 0b1001  
+/// Arg col: 4  
+/// Return: 0b0_000000000_000000000_000000000_0000_0000_0000_1001_0000_0000_0000_0000_0000  
+/// ```
 pub const fn shift_to_square(value: usize, col: usize) -> u64 {
     (value as u64) << SHIFT_SQUARE[col]
 }
 
-/// Returns the set of bits that represent the values in a given row.
-/// Arg data: 0b0_110010011_000000000_000000000_0000_0000_0000_0000_0000_0000_0000_0000_0000
-/// Return: 0b110010011
+/// Returns the set of bits that represent the values present in a given row.  
+/// ```text
+/// Arg data: 0b0_110010011_000000000_000000000_0000_0000_0000_0000_0000_0000_0000_0000_0000  
+/// Return: 0b110010011  
+/// ```
 pub const fn values_in_row(data: u64) -> u64 {
     (data >> SHIFT_ROW) & NINE_SET_BITS
 }
 
-/// Returns the set of bits that represent the values in a given row.
-/// Arg data: 0b0_000000000_110010011_000000000_0000_0000_0000_0000_0000_0000_0000_0000_0000
-/// Return: 0b110010011
+/// Returns the set of bits that represent the values present in a given column.  
+/// ```text
+/// Arg data: 0b0_000000000_110010011_000000000_0000_0000_0000_0000_0000_0000_0000_0000_0000  
+/// Return: 0b110010011  
+/// ```
 pub const fn values_in_col(data: u64) -> u64 {
     (data >> SHIFT_COL) & NINE_SET_BITS
 }
 
-/// Returns the set of bits that represent the values in a given row.
-/// Arg data: 0b0_000000000_000000000_110010011_0000_0000_0000_0000_0000_0000_0000_0000_0000
-/// Return: 0b110010011
+/// Returns the set of bits that represent the values present in a given box.  
+/// ```text
+/// Arg data: 0b0_000000000_000000000_110010011_0000_0000_0000_0000_0000_0000_0000_0000_0000  
+/// Return: 0b110010011  
+/// ```
 pub const fn values_in_box(data: u64) -> u64 {
     (data >> SHIFT_BOX) & NINE_SET_BITS
 }
 
-/// Returns the value in a square's location.
-/// Arg data: 0b0001_0010_0011_0100_0101_0110_0111_1000_1001
-/// Arg col: 7
-/// Return: 0b0111
+/// Returns the value in a square's location.  
+/// ```text
+/// Arg data: 0b0001_0010_0011_0100_0101_0110_0111_1000_1001  
+/// Arg col: 7  
+/// Return: 0b0111  
+/// ```
 pub const fn value_in_square(data: u64, col: usize) -> u64 {
     (data >> SHIFT_SQUARE[col]) & FOUR_SET_BITS
 }
 
-/// Zeros the value in a square's location.
-/// Arg data: 0b0001_0010_0011_0100_0101_0110_0111_1000_1001
-/// Arg col: 7
-/// Return: 0b0001_0010_0011_0100_0101_0110_0000_1000_1001
+/// Zeros out the value in a square's location.  
+/// ```text
+/// Arg data: 0b0001_0010_0011_0100_0101_0110_0111_1000_1001  
+/// Arg col: 7  
+/// Return: 0b0001_0010_0011_0100_0101_0110_0000_1000_1001  
+/// ```
 pub const fn zero_out_square(data: u64, col: usize) -> u64 {
     data & CLEAR[col]
 }
