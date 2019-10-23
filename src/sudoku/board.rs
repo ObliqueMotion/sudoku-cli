@@ -1,6 +1,36 @@
+//! A sudoku board capable of finding all possible solutions to a sudoku puzzle.
+//! ```text
+//! ───────────────────────────────────────────────────────────────────────────────────────────────────────
+//!     c0 c1 c2  c3 c4 c5  c6 c7 c8
+//!    ╔═════════╦═════════╦═════════╗
+//! r0 ║         ║         ║         ║
+//! r1 ║  Box 0  ║  Box 1  ║  Box 2  ║
+//! r2 ║         ║         ║         ║
+//!    ╠═════════╬═════════╬═════════╣
+//! r3 ║         ║         ║         ║
+//! r4 ║  Box 3  ║  Box 4  ║  Box 5  ║
+//! r5 ║         ║         ║         ║
+//!    ╠═════════╬═════════╬═════════╣
+//! r6 ║         ║         ║         ║
+//! r7 ║  Box 6  ║  Box 7  ║  Box 8  ║
+//! r8 ║         ║         ║         ║
+//!    ╚═════════╩═════════╩═════════╝
+//! ───────────────────────────────────────────────────────────────────────────────────────────────────────
+//! board[0] contains whether a value present in { row[0], col[0], box[0] } and all the values in row[0]  
+//! board[1] contains whether a value present in { row[1], col[1], box[1] } and all the values in row[1]  
+//! board[2] contains whether a value present in { row[2], col[2], box[2] } and all the values in row[2]  
+//! board[3] contains whether a value present in { row[3], col[3], box[3] } and all the values in row[3]  
+//! board[4] contains whether a value present in { row[4], col[4], box[4] } and all the values in row[4]  
+//! board[5] contains whether a value present in { row[5], col[5], box[5] } and all the values in row[5]  
+//! board[6] contains whether a value present in { row[6], col[6], box[6] } and all the values in row[6]  
+//! board[7] contains whether a value present in { row[7], col[7], box[7] } and all the values in row[7]  
+//! board[8] contains whether a value present in { row[8], col[8], box[8] } and all the values in row[8]  
+//! ```
+
 use super::data::SudokuData;
 use crate::sudoku::bitwise::as_bit;
 use rayon::prelude::{ParallelBridge, ParallelIterator};
+use ansi_escapes::ClearScreen;
 use std::borrow::Borrow;
 use std::iter::repeat;
 use std::sync::mpsc::channel;
@@ -12,36 +42,11 @@ const BOARD_STRING_LENGTH: usize = 1682;
 /// The number of bytes in the compact string repreentation of the board.
 const COMPACT_BOARD_STRING_LENGTH: usize = 82;
 
-//                Sudoku Board
-//     c0  c1  c2  c3  c4  c5  c6  c7  c8
-//    ╔═══════════╦═══════════╦═══════════╗
-// r0 ║           ║           ║           ║
-// r1 ║   Box 0   ║   Box 1   ║   Box 2   ║
-// r2 ║           ║           ║           ║
-//    ╠═══════════╬═══════════╬═══════════╣
-// r3 ║           ║           ║           ║
-// r4 ║   Box 3   ║   Box 4   ║   Box 5   ║
-// r5 ║           ║           ║           ║
-//    ╠═══════════╬═══════════╬═══════════╣
-// r6 ║           ║           ║           ║
-// r7 ║   Box 6   ║   Box 7   ║   Box 8   ║
-// r8 ║           ║           ║           ║
-//    ╚═══════════╩═══════════╩═══════════╝
 
-/// A struct that represents a sudoku board. The board's state consists of 9 `SudokuData` structs.  
+
+
+/// A struct that represents a sudoku board. The board's state consists of 9 [SudokuData](../data/struct.SudokuData.html) structs.  
 /// The board design is compact so that it can be trivially copied into another thread.  
-/// ──────────────────────────────────────────────────────────────────────────────────────────  
-/// ```text
-/// board[0] contains if a value present in row[0], col[0], box[0], and all the values in row[0]  
-/// board[1] contains if a value present in row[1], col[1], box[1], and all the values in row[1]  
-/// board[2] contains if a value present in row[2], col[2], box[2], and all the values in row[2]  
-/// board[3] contains if a value present in row[3], col[3], box[3], and all the values in row[3]  
-/// board[4] contains if a value present in row[4], col[4], box[4], and all the values in row[4]  
-/// board[5] contains if a value present in row[5], col[5], box[5], and all the values in row[5]  
-/// board[6] contains if a value present in row[6], col[6], box[6], and all the values in row[6]  
-/// board[7] contains if a value present in row[7], col[7], box[7], and all the values in row[7]  
-/// board[8] contains if a value present in row[8], col[8], box[8], and all the values in row[8]  
-/// ```
 #[derive(Clone, Debug, Default)]
 pub struct SudokuBoard {
     board: [SudokuData; 9],
@@ -237,24 +242,22 @@ impl SudokuBoard {
     pub fn watch_find_solutions(&mut self, millis_per_frame: u64) {
         let mut count = 0;
         self.analyze_fillable_squares();
-        self.watch_find_all_solutions(millis_per_frame, &mut count);
+        self.watch_find_solutions_seq(millis_per_frame, &mut count);
     }
     
-
     /// Watch the board find solutions in the terminal.
-    fn watch_find_all_solutions(&mut self, millis_per_frame: u64, count: &mut usize) {
-        use ansi_escapes::ClearScreen;
+    fn watch_find_solutions_seq(&mut self, millis_per_frame: u64, count: &mut usize) {
         thread::sleep(Duration::from_millis(millis_per_frame));
         if self.fillable_squares.is_empty() {
-            println!("{}\n{}\n  Solutions: {}", ClearScreen, self, count);
             *count += 1;
+            println!("{}\n{}\n  Solutions: {}", ClearScreen, self, count);
             return;
         }
         println!("{}\n{}\n  Solutions: {}", ClearScreen, self, count);
         let square = self.next_fillable_square();
         for value in self.options_iter(&square) {
             self.fill(&square, value);
-            self.watch_find_all_solutions(millis_per_frame, count);
+            self.watch_find_solutions_seq(millis_per_frame, count);
         }
         self.clear(&square);
         self.fillable_squares.push(square);

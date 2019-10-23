@@ -1,3 +1,17 @@
+//! A compact representation of a sudoku board's data.
+//! ```text
+//! Semantic mapping onto 64-bit integer:
+//! ───────────────────────────────────────────────────────────────────────────────────────────────────────
+//! 0b0_______000000000_000000000_000000000___0000___0000___0000___0000___0000___0000___0000___0000___0000
+//! ───────────────────────────────────────────────────────────────────────────────────────────────────────
+//! | unused |   row   |   col   |   box    | zero | one  | two  | three| four | five |  six | seven| eight
+//! ───────────────────────────────────────────────────────────────────────────────────────────────────────
+//!          |─── value is present if set ──|──── values represent the values in each square of a row ────|
+//! ───────────────────────────────────────────────────────────────────────────────────────────────────────
+//!          | 110000011 means {1, 2, 8, 9} | 
+//! ───────────────────────────────────────────────────────────────────────────────────────────────────────
+//! ```
+
 use crate::sudoku::bitwise;
 use crate::sudoku::bitwise::{
     as_bit, as_bit_inverse, shift_to_box, shift_to_box_inverse, shift_to_col, shift_to_col_inverse,
@@ -8,12 +22,7 @@ use std::fmt;
 /// The string outputs of a square's value on the board.
 static OUTPUT: [&str; 10] = [" ", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
 
-/// A struct that represents a portion of the board's data in a u64.
-/// where row, col, box are each 9 bits that represent if a value (1-9) is present in that section.
-/// where (zero - eight) represent the current value in a given square.
-/// ──────────────────────────────────────────────────────────────────────────────────────────────────────
-/// 0b0_______000000000_000000000_000000000___0000___0000___0000___0000___0000___0000___0000___0000___0000
-/// | unused |   row   |   col   |   box    | zero | one  | two  | three| four | five |  six | seven| eight
+/// A struct that compactly represents a portion of a [SudokuBoard](../board/struct.SudokuBoard.html)'s data in a `u64`.
 #[derive(Clone, Copy, Debug, Default)]
 pub struct SudokuData(u64);
 
@@ -100,7 +109,7 @@ impl SudokuData {
         )
     }
 
-    /// Formats every value in the row in a single line with no formatting.
+    /// Formats every value in the row in a single line of 9 digits.
     pub fn to_string_compact(&self) -> String {
         let mut string = String::with_capacity(9);
         for i in 0..=8 {
