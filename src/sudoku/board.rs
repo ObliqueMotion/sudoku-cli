@@ -34,7 +34,7 @@ use rayon::prelude::{ParallelBridge, ParallelIterator};
 use std::borrow::Borrow;
 use std::iter::repeat;
 use std::sync::mpsc::channel;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 use std::{fmt, iter, thread};
 
 /// The number of bytes in the string representation of the board.
@@ -249,6 +249,11 @@ impl SudokuBoard {
     /// Watch the board find solutions in the terminal.
     pub fn watch_find_solutions(&mut self, millis_per_frame: u64) {
         if !self.is_solvable {
+            println!("\n{}", self);
+            let now = Instant::now();
+            println!("  Found: 0 solutions");
+            let elapsed = now.elapsed();
+            println!("  Time:  {} seconds\n", elapsed.as_secs_f64());
             return;
         }
         let mut count = 0;
