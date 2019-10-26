@@ -65,9 +65,13 @@ starting with the top row.
 
 `sudoku-cli watch-all --input=path/to/puzzle --ms-per-frame=15`
 
+<img src="https://raw.githubusercontent.com/ObliqueMotion/sudoku-cli/master/images/watch-all.gif">
+
 ---
 
  ### Count All
 
 `sudoku-cli count-all --input=path/to/puzzle --threads=8`
+
+<img src="https://raw.githubusercontent.com/ObliqueMotion/sudoku-cli/master/images/count-all.png">
 
