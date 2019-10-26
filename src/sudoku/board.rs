@@ -29,7 +29,7 @@
 
 use super::data::SudokuData;
 use crate::sudoku::bitwise::as_bit;
-use ansi_escapes::{CursorHide, CursorShow, CursorSavePosition, CursorRestorePosition};
+use ansi_escapes::{CursorHide, CursorRestorePosition, CursorSavePosition, CursorShow};
 use rayon::prelude::{ParallelBridge, ParallelIterator};
 use std::borrow::Borrow;
 use std::iter::repeat;
@@ -127,7 +127,8 @@ impl SudokuBoard {
         }
         let board: *const SudokuBoard = self;
         unsafe {
-            self.fillable_squares.sort_unstable_by_key(|sq| 9 - (*board).count_options(sq));
+            self.fillable_squares
+                .sort_unstable_by_key(|sq| 9 - (*board).count_options(sq));
         }
     }
 
@@ -274,10 +275,16 @@ impl SudokuBoard {
         thread::sleep(Duration::from_millis(millis_per_frame));
         if self.fillable_squares.is_empty() {
             *count += 1;
-            print!("{}{}\n{}\n  Solutions: {}", CursorRestorePosition, CursorSavePosition, self, count);
+            print!(
+                "{}{}\n{}\n  Solutions: {}",
+                CursorRestorePosition, CursorSavePosition, self, count
+            );
             return;
         }
-        print!("{}{}\n{}\n  Solutions: {}", CursorRestorePosition, CursorSavePosition, self, count);
+        print!(
+            "{}{}\n{}\n  Solutions: {}",
+            CursorRestorePosition, CursorSavePosition, self, count
+        );
         let square = self.next_fillable_square();
         for value in self.options_iter(&square) {
             self.fill(&square, value);
@@ -286,7 +293,10 @@ impl SudokuBoard {
         self.clear(&square);
         self.fillable_squares.push(square);
         thread::sleep(Duration::from_millis(millis_per_frame));
-        print!("{}{}\n{}\n  Solutions: {}", CursorRestorePosition, CursorSavePosition, self, count);
+        print!(
+            "{}{}\n{}\n  Solutions: {}",
+            CursorRestorePosition, CursorSavePosition, self, count
+        );
     }
 
     /// Watch the board find one solution in the terminal.
@@ -312,11 +322,17 @@ impl SudokuBoard {
         thread::sleep(Duration::from_millis(millis_per_frame));
         if self.fillable_squares.is_empty() {
             *count += 1;
-            print!("{}{}\n{}\n  Solutions: {}", CursorRestorePosition, CursorSavePosition, self, count);
+            print!(
+                "{}{}\n{}\n  Solutions: {}",
+                CursorRestorePosition, CursorSavePosition, self, count
+            );
             return;
         }
         if 0 == *count {
-            print!("{}{}\n{}\n  Solutions: {}", CursorRestorePosition, CursorSavePosition, self, count);
+            print!(
+                "{}{}\n{}\n  Solutions: {}",
+                CursorRestorePosition, CursorSavePosition, self, count
+            );
             let square = self.next_fillable_square();
             for value in self.options_iter(&square) {
                 self.fill(&square, value);
@@ -325,7 +341,10 @@ impl SudokuBoard {
             self.clear(&square);
             self.fillable_squares.push(square);
             thread::sleep(Duration::from_millis(millis_per_frame));
-            print!("{}{}\n{}\n  Solutions: {}", CursorRestorePosition, CursorSavePosition, self, count);
+            print!(
+                "{}{}\n{}\n  Solutions: {}",
+                CursorRestorePosition, CursorSavePosition, self, count
+            );
         }
     }
 
@@ -448,11 +467,6 @@ impl SudokuBoard {
         self.fillable_squares.push(square);
         (count, solutions)
     }
-
-
-
-
-
 
     /// Find all solutions in parallel and return each solved board in a String sequentially.
     pub fn find_one(&mut self) -> (usize, String) {
@@ -585,16 +599,6 @@ impl SudokuBoard {
         self.fillable_squares.push(square);
         (count, solutions)
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 
     /// Returns the next best square in which to try a value, removing it from the vector.  
     /// That is the first encountered square if only 1 option.  

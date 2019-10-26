@@ -85,9 +85,9 @@ struct Count {
 }
 
 /// ABOUT:
-/// 
+///
 /// │   A command-line tool for solving sudoku. There are five sub-commands (see usage details below):
-/// 
+///
 /// │   find-one, find-all, watch-one, watch-all, count-all
 ///
 /// INPUT:
@@ -98,7 +98,7 @@ struct Count {
 /// |   Any digits (1-9) will show up on the board. All other characters will count as a blank square.
 ///
 /// │   Valid Input: .75.....42139.5.7...8.7...9..2417...4...6...1...8324..3...9.7...5.3.46988.....31.
-/// 
+///
 /// │   Valid Input: ./path/to/puzzle
 ///
 /// OUTPUT:
@@ -108,17 +108,17 @@ struct Count {
 /// EXAMPLES:
 ///
 /// │   sudoku-cli find-one  --input=".75.....4.1...5.....8.7.........7.......6...1...8.2...3...9.7...5.3.4.........31."
-/// 
+///
 /// │   sudoku-cli find-all  --input=".75.....4.1...5.....8.7.........7.......6...1...8.2...3...9.7...5.3.4.........31."
-/// 
+///
 /// |   sudoku-cli find-all  --input=path/to/puzzle --threads=3 --compact
-/// 
+///
 /// |   sudoku-cli find-all  --input=path/to/puzzle --output=path/to/output/file
-/// 
+///
 /// |   sudoku-cli watch-all --input=path/to/puzzle --ms-per-frame=5
-/// 
+///
 /// |   sudoku-cli watch-one --input=path/to/puzzle
-/// 
+///
 /// │   sudoku-cli count-all --input=path/to/puzzle
 ///
 /// │   For more details on each subcommand: sudoku-cli help <SUBCOMMAND>
