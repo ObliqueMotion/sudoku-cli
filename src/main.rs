@@ -31,12 +31,16 @@ impl From<rayon::ThreadPoolBuildError> for SudokuError {
 /// Toast
 #[derive(StructOpt, Debug)]
 enum Action {
-    /// Writes all solutions to a specified output.
-    Write(Output),
+    /// Finds all possible solutions and writes them to a specified output.
+    FindAll(Output),
+    /// Finds one possible solution and writes it to a specified output.
+    FindOne(Output),
+    /// Watch the solver find one solution to a puzzle.
+    WatchOne(Watch),
     /// Watch the solver find all solutions to a puzzle.
-    Watch(Watch),
+    WatchAll(Watch),
     /// Counts the number of solutions to a sudoku puzzle.
-    Count(Count),
+    CountAll(Count),
 }
 
 #[derive(StructOpt, Debug)]
@@ -80,32 +84,42 @@ struct Count {
     threads: Option<usize>,
 }
 
+/// ABOUT:
+/// 
+/// │   A command-line tool for solving sudoku. There are five sub-commands (see usage details below):
+/// 
+/// │   find-one, find-all, watch-one, watch-all, count-all
 ///
 /// INPUT:
 ///
 /// │   If your input is a file path, sudoku-cli will read the file. Otherwise it treats the string as input.
 ///
-/// │   sudoku-cli will read the first 81 non-whitespace characters. (1-9) go on the board, otherwise blank.
+/// │   sudoku-cli reads the first 81 non-whitespace characters and fills each row from left to right starting with the top.
+/// |   Any digits (1-9) will show up on the board. All other characters will count as a blank square.
 ///
 /// │   Valid Input: .75.....42139.5.7...8.7...9..2417...4...6...1...8324..3...9.7...5.3.46988.....31.
-///
+/// 
 /// │   Valid Input: ./path/to/puzzle
 ///
 /// OUTPUT:
 ///
-/// |   sudoku-cli can create a new file or overwrite an existing file. The directory must already exist.
+/// │   The directory to a specified output file must already exist.
 ///
 /// EXAMPLES:
 ///
-/// │   sudoku-cli count --input=".75.....42139.5.7...8.7...9..2417...4...6...1...8324..3...9.7...5.3.46988.....31."
-///
-/// │   sudoku-cli count --input=path/to/puzzle --threads=1 (defaults to CPU count if --threads is unspecified)
-///
-/// │   sudoku-cli watch --input=path/to/puzzle --ms-per-frame=40 (defaults to 50 milliseconds per frame)
-///
-/// │   sudoku-cli write --input=path/to/puzzle --compact (defaults to terminal output)
-///
-/// │   sudoku-cli write --input=path/to/puzzle --output=path/to/output-file
+/// │   sudoku-cli find-one  --input=".75.....4.1...5.....8.7.........7.......6...1...8.2...3...9.7...5.3.4.........31."
+/// 
+/// │   sudoku-cli find-all  --input=".75.....4.1...5.....8.7.........7.......6...1...8.2...3...9.7...5.3.4.........31."
+/// 
+/// |   sudoku-cli find-all  --input=path/to/puzzle --threads=3 --compact
+/// 
+/// |   sudoku-cli find-all  --input=path/to/puzzle --output=path/to/output/file
+/// 
+/// |   sudoku-cli watch-all --input=path/to/puzzle --ms-per-frame=5
+/// 
+/// |   sudoku-cli watch-one --input=path/to/puzzle
+/// 
+/// │   sudoku-cli count-all --input=path/to/puzzle
 ///
 /// │   For more details on each subcommand: sudoku-cli help <SUBCOMMAND>
 #[derive(StructOpt, Debug)]
@@ -142,11 +156,15 @@ fn print_count(count: usize) {
 fn main() -> Result<(), SudokuError> {
     println!("{}", ClearScreen);
     match Opt::from_args().action {
-        Action::Watch(opts) => {
+        Action::WatchOne(opts) => {
             let mut board = SudokuBoard::from(puzzle_input(&opts.input)?);
-            board.watch_find_solutions(opts.ms_per_frame)
+            board.watch_find_one(opts.ms_per_frame)
         }
-        Action::Count(opts) => {
+        Action::WatchAll(opts) => {
+            let mut board = SudokuBoard::from(puzzle_input(&opts.input)?);
+            board.watch_find_all(opts.ms_per_frame)
+        }
+        Action::CountAll(opts) => {
             build_thread_pool(opts.threads)?;
             let mut board = SudokuBoard::from(puzzle_input(&opts.input)?);
             println!("\n{}", board);
@@ -156,24 +174,50 @@ fn main() -> Result<(), SudokuError> {
             print_count(count);
             println!("  Time:  {} seconds\n", elapsed.as_secs_f64());
         }
-        Action::Write(opts) => {
+        Action::FindOne(opts) => {
             build_thread_pool(opts.threads)?;
             let mut board = SudokuBoard::from(puzzle_input(&opts.input)?);
             println!("\n{}", board);
             let now = Instant::now();
-            let solutions = if opts.compact {
-                board.find_solutions_compact()
+            let (count, solutions) = if opts.compact {
+                board.find_one_compact()
             } else {
-                board.find_solutions()
+                board.find_one()
             };
             let elapsed = now.elapsed();
-            let count = board.count_solutions();
             if let Some(path) = opts.output {
                 let mut file = File::create(&path)?;
                 file.write_all(solutions.as_bytes())?;
                 print_count(count);
                 println!("  Time:  {} seconds\n", elapsed.as_secs_f64());
-                println!("  Writing solutions to file: {}\n\n", path);
+                println!("  Writing solution to file: {}\n\n", path);
+            } else {
+                println!("  Solutions:\n\n{}", solutions);
+                print_count(count);
+                println!("  Time:  {} seconds\n", elapsed.as_secs_f64());
+            }
+        }
+        Action::FindAll(opts) => {
+            build_thread_pool(opts.threads)?;
+            let mut board = SudokuBoard::from(puzzle_input(&opts.input)?);
+            println!("\n{}", board);
+            let now = Instant::now();
+            let (count, solutions) = if opts.compact {
+                board.find_all_compact()
+            } else {
+                board.find_all()
+            };
+            let elapsed = now.elapsed();
+            if let Some(path) = opts.output {
+                let mut file = File::create(&path)?;
+                file.write_all(solutions.as_bytes())?;
+                print_count(count);
+                println!("  Time:  {} seconds\n", elapsed.as_secs_f64());
+                if 1 == count {
+                    println!("  Writing solution to file: {}\n\n", path);
+                } else {
+                    println!("  Writing solutions to file: {}\n\n", path);
+                }
             } else {
                 println!("  Solutions:\n\n{}", solutions);
                 print_count(count);
