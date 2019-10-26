@@ -1,7 +1,7 @@
 # sudoku-cli
 
 ---
-### About
+## About
 A command-line tool for solving sudoku puzzles. 
 
 If your input is a file path, `sudoku-cli` will read from the file. Otherwise it treats the string as input.  
@@ -10,7 +10,7 @@ If your input is a file path, `sudoku-cli` will read from the file. Otherwise it
 starting with the top row.
 
 ---
-### Commands
+## Commands
 
 `sudoku-cli` has 5 subcommands each with their own configurable options:
 * `sudoku-cli find-one`: Finds a solution to the sudoku puzzle.
@@ -34,9 +34,10 @@ starting with the top row.
     * `-t=<value> | --threads=<value>` the number of threads to use. [default: CPU count]
     
 ---
- ### Examples
+ ## Examples
  
 ---
+ ### Find One
  
 `sudoku-cli find-one --input=".75.....4.1...5.....8.7.........7.......6...1...8.2...3...9.7...5.3.4.........31."`
 
@@ -44,23 +45,31 @@ starting with the top row.
 
 ---
 
+ ### Find All
+ 
 `sudoku-cli find-all --input=path/to/puzzle --threads=8 --output=solutions.txt --compact`
 
 ![](images/find-all.png)
 
 ---
 
+ ### Watch One
+ 
 `sudoku-cli watch-one --input=path/to/puzzle`
 
 ![](images/watch-one.gif)
 
 ---
 
+ ### Watch All
+
 `sudoku-cli watch-all --input=path/to/puzzle --ms-per-frame=15`
 
 ![](images/watch-all.gif)
 
 ---
+
+ ### Count All
 
 `sudoku-cli count-all --input=path/to/puzzle --threads=8`
 
