@@ -29,7 +29,7 @@
 
 use super::data::SudokuData;
 use crate::sudoku::bitwise::as_bit;
-use ansi_escapes::ClearScreen;
+use ansi_escapes::{CursorHide, CursorShow, CursorSavePosition, CursorRestorePosition};
 use rayon::prelude::{ParallelBridge, ParallelIterator};
 use std::borrow::Borrow;
 use std::iter::repeat;
@@ -113,6 +113,7 @@ impl SudokuBoard {
     }
 
     /// Populates a vector with the coordinates of every fillable square on the board.
+    /// The vector is sorted such that the squares with the fewest options are in the back.
     fn analyze_fillable_squares(&mut self) {
         self.fillable_squares.clear();
         for row in 0..9 {
@@ -123,6 +124,10 @@ impl SudokuBoard {
                         .push(SudokuSquare::new(row, col, box_index(row, col)));
                 }
             }
+        }
+        let board: *const SudokuBoard = self;
+        unsafe {
+            self.fillable_squares.sort_unstable_by_key(|sq| 9 - (*board).count_options(sq));
         }
     }
 
@@ -247,70 +252,117 @@ impl SudokuBoard {
     }
 
     /// Watch the board find solutions in the terminal.
-    pub fn watch_find_solutions(&mut self, millis_per_frame: u64) {
+    pub fn watch_find_all(&mut self, millis_per_frame: u64) {
+        println!("{}", CursorHide);
         if !self.is_solvable {
             println!("\n{}", self);
             let now = Instant::now();
             println!("  Found: 0 solutions");
             let elapsed = now.elapsed();
-            println!("  Time:  {} seconds\n", elapsed.as_secs_f64());
+            println!("  Time:  {} seconds{}\n", elapsed.as_secs_f64(), CursorShow);
             return;
         }
         let mut count = 0;
+        print!("{}", CursorSavePosition);
         self.analyze_fillable_squares();
-        self.watch_find_solutions_seq(millis_per_frame, &mut count);
+        self.watch_find_all_seq(millis_per_frame, &mut count);
+        println!("{}", CursorShow);
     }
 
     /// Watch the board find solutions in the terminal.
-    fn watch_find_solutions_seq(&mut self, millis_per_frame: u64, count: &mut usize) {
+    fn watch_find_all_seq(&mut self, millis_per_frame: u64, count: &mut usize) {
         thread::sleep(Duration::from_millis(millis_per_frame));
         if self.fillable_squares.is_empty() {
             *count += 1;
-            println!("{}\n{}\n  Solutions: {}", ClearScreen, self, count);
+            print!("{}{}\n{}\n  Solutions: {}", CursorRestorePosition, CursorSavePosition, self, count);
             return;
         }
-        println!("{}\n{}\n  Solutions: {}", ClearScreen, self, count);
+        print!("{}{}\n{}\n  Solutions: {}", CursorRestorePosition, CursorSavePosition, self, count);
         let square = self.next_fillable_square();
         for value in self.options_iter(&square) {
             self.fill(&square, value);
-            self.watch_find_solutions_seq(millis_per_frame, count);
+            self.watch_find_all_seq(millis_per_frame, count);
         }
         self.clear(&square);
         self.fillable_squares.push(square);
         thread::sleep(Duration::from_millis(millis_per_frame));
-        println!("{}\n{}\n  Solutions: {}", ClearScreen, self, count);
+        print!("{}{}\n{}\n  Solutions: {}", CursorRestorePosition, CursorSavePosition, self, count);
+    }
+
+    /// Watch the board find one solution in the terminal.
+    pub fn watch_find_one(&mut self, millis_per_frame: u64) {
+        println!("{}", CursorHide);
+        if !self.is_solvable {
+            println!("\n{}", self);
+            let now = Instant::now();
+            println!("  Found: 0 solutions");
+            let elapsed = now.elapsed();
+            println!("  Time:  {} seconds{}\n", elapsed.as_secs_f64(), CursorShow);
+            return;
+        }
+        let mut count = 0;
+        print!("{}", CursorSavePosition);
+        self.analyze_fillable_squares();
+        self.watch_find_one_seq(millis_per_frame, &mut count);
+        println!("{}", CursorShow);
+    }
+
+    /// Watch the board find one solution in the terminal.
+    fn watch_find_one_seq(&mut self, millis_per_frame: u64, count: &mut usize) {
+        thread::sleep(Duration::from_millis(millis_per_frame));
+        if self.fillable_squares.is_empty() {
+            *count += 1;
+            print!("{}{}\n{}\n  Solutions: {}", CursorRestorePosition, CursorSavePosition, self, count);
+            return;
+        }
+        if 0 == *count {
+            print!("{}{}\n{}\n  Solutions: {}", CursorRestorePosition, CursorSavePosition, self, count);
+            let square = self.next_fillable_square();
+            for value in self.options_iter(&square) {
+                self.fill(&square, value);
+                self.watch_find_one_seq(millis_per_frame, count);
+            }
+            self.clear(&square);
+            self.fillable_squares.push(square);
+            thread::sleep(Duration::from_millis(millis_per_frame));
+            print!("{}{}\n{}\n  Solutions: {}", CursorRestorePosition, CursorSavePosition, self, count);
+        }
     }
 
     /// Find all solutions in parallel and return each solved board in a String sequentially.
-    pub fn find_solutions(&mut self) -> String {
+    pub fn find_all(&mut self) -> (usize, String) {
         if !self.is_solvable {
-            return String::new();
+            return (0, String::new());
         }
         self.analyze_fillable_squares();
-        self.find_solutions_par()
+        self.find_all_par()
     }
 
     /// Find all solutions sequentially and return each solved board in a String sequentially.
-    fn find_solutions_seq(&mut self) -> String {
+    fn find_all_seq(&mut self) -> (usize, String) {
         if self.fillable_squares.is_empty() {
-            return self.to_string();
+            return (1, self.to_string());
         }
+        let mut count = 0;
         let mut solutions = String::new();
         let square = self.next_fillable_square();
         for value in self.options_iter(&square) {
             self.fill(&square, value);
-            solutions += &self.find_solutions_seq();
+            let (new_count, new_sols) = self.find_all_seq();
+            count += new_count;
+            solutions += &new_sols;
         }
         self.clear(&square);
         self.fillable_squares.push(square);
-        solutions
+        (count, solutions)
     }
 
     /// Find all solutions in parallel and return each solved board in a String sequentially.
-    fn find_solutions_par(&mut self) -> String {
+    fn find_all_par(&mut self) -> (usize, String) {
         if self.fillable_squares.is_empty() {
-            return self.to_string();
+            return (1, self.to_string());
         }
+        let mut count = 0;
         let mut solutions = String::new();
         let square = self.next_fillable_square();
         let num_options = self.count_options(&square);
@@ -321,50 +373,56 @@ impl SudokuBoard {
                 let mut board = self.clone();
                 board.fill(&square, value);
                 if num_options > 1 {
-                    tx.send(board.find_solutions_par())
+                    tx.send(board.find_all_par())
                 } else {
-                    tx.send(board.find_solutions_seq())
+                    tx.send(board.find_all_seq())
                 }
             })
             .expect("Failed to invoke on multiple threads.");
         for _ in 0..num_options {
-            solutions.push_str(&rx.recv().unwrap());
+            let (new_count, new_sols) = rx.recv().unwrap();
+            count += new_count;
+            solutions += &new_sols;
         }
         self.clear(&square);
         self.fillable_squares.push(square);
-        solutions
+        (count, solutions)
     }
 
     /// Find all solutions in parallel and return each solved board in a String sequentially.
-    pub fn find_solutions_compact(&mut self) -> String {
+    pub fn find_all_compact(&mut self) -> (usize, String) {
         if !self.is_solvable {
-            return String::new();
+            return (0, String::new());
         }
         self.analyze_fillable_squares();
-        self.find_solutions_compact_par()
+        self.find_all_compact_par()
     }
 
     /// Find all solutions sequentially and return each solved board as a compact string of 81 contiguous digits `(1..=9)`
-    fn find_solutions_compact_seq(&mut self) -> String {
+    fn find_all_compact_seq(&mut self) -> (usize, String) {
         if self.fillable_squares.is_empty() {
-            return self.to_string_compact();
+            return (1, self.to_string_compact());
         }
+        let mut count = 0;
         let mut solutions = String::new();
         let square = self.next_fillable_square();
         for value in self.options_iter(&square) {
             self.fill(&square, value);
-            solutions += &self.find_solutions_compact_seq();
+            let (new_count, new_sols) = &self.find_all_compact_seq();
+            count += new_count;
+            solutions += new_sols;
         }
         self.clear(&square);
         self.fillable_squares.push(square);
-        solutions
+        (count, solutions)
     }
 
     /// Find all solutions in parallel and return each solved board in a String sequentially.
-    fn find_solutions_compact_par(&mut self) -> String {
+    fn find_all_compact_par(&mut self) -> (usize, String) {
         if self.fillable_squares.is_empty() {
-            return self.to_string_compact();
+            return (1, self.to_string_compact());
         }
+        let mut count = 0;
         let mut solutions = String::new();
         let square = self.next_fillable_square();
         let num_options = self.count_options(&square);
@@ -375,19 +433,168 @@ impl SudokuBoard {
                 let mut board = self.clone();
                 board.fill(&square, value);
                 if num_options > 1 {
-                    tx.send(board.find_solutions_compact_par())
+                    tx.send(board.find_all_compact_par())
                 } else {
-                    tx.send(board.find_solutions_compact_seq())
+                    tx.send(board.find_all_compact_seq())
                 }
             })
             .expect("Failed to invoke on multiple threads.");
         for _ in 0..num_options {
-            solutions.push_str(&rx.recv().unwrap());
+            let (new_count, new_sols) = rx.recv().unwrap();
+            count += new_count;
+            solutions += &new_sols;
         }
         self.clear(&square);
         self.fillable_squares.push(square);
-        solutions
+        (count, solutions)
     }
+
+
+
+
+
+
+    /// Find all solutions in parallel and return each solved board in a String sequentially.
+    pub fn find_one(&mut self) -> (usize, String) {
+        if !self.is_solvable {
+            return (0, String::new());
+        }
+        self.analyze_fillable_squares();
+        self.find_one_par()
+    }
+
+    /// Find all solutions sequentially and return each solved board in a String sequentially.
+    fn find_one_seq(&mut self) -> (usize, String) {
+        if self.fillable_squares.is_empty() {
+            return (1, self.to_string());
+        }
+        let mut count = 0;
+        let mut solutions = String::new();
+        let square = self.next_fillable_square();
+        for value in self.options_iter(&square) {
+            if 0 < count {
+                break;
+            }
+            self.fill(&square, value);
+            let (new_count, new_sols) = self.find_one_seq();
+            count += new_count;
+            solutions += &new_sols;
+        }
+        self.clear(&square);
+        self.fillable_squares.push(square);
+        (count, solutions)
+    }
+
+    /// Find all solutions in parallel and return each solved board in a String sequentially.
+    fn find_one_par(&mut self) -> (usize, String) {
+        if self.fillable_squares.is_empty() {
+            return (1, self.to_string());
+        }
+        let mut count = 0;
+        let mut solutions = String::new();
+        let square = self.next_fillable_square();
+        let num_options = self.count_options(&square);
+        let (tx, rx) = channel();
+        self.options_iter(&square)
+            .par_bridge()
+            .try_for_each_with(tx, |tx, value| {
+                let mut board = self.clone();
+                board.fill(&square, value);
+                if num_options > 1 {
+                    tx.send(board.find_one_par())
+                } else {
+                    tx.send(board.find_one_seq())
+                }
+            })
+            .expect("Failed to invoke on multiple threads.");
+        for _ in 0..num_options {
+            if 0 < count {
+                break;
+            }
+            let (new_count, new_sols) = rx.recv().unwrap();
+            count += new_count;
+            solutions += &new_sols;
+        }
+        self.clear(&square);
+        self.fillable_squares.push(square);
+        (count, solutions)
+    }
+
+    /// Find all solutions in parallel and return each solved board in a String sequentially.
+    pub fn find_one_compact(&mut self) -> (usize, String) {
+        if !self.is_solvable {
+            return (0, String::new());
+        }
+        self.analyze_fillable_squares();
+        self.find_one_compact_par()
+    }
+
+    /// Find all solutions sequentially and return each solved board as a compact string of 81 contiguous digits `(1..=9)`
+    fn find_one_compact_seq(&mut self) -> (usize, String) {
+        if self.fillable_squares.is_empty() {
+            return (1, self.to_string_compact());
+        }
+        let mut count = 0;
+        let mut solutions = String::new();
+        let square = self.next_fillable_square();
+        for value in self.options_iter(&square) {
+            if 0 < count {
+                break;
+            }
+            self.fill(&square, value);
+            let (new_count, new_sols) = &self.find_one_compact_seq();
+            count += new_count;
+            solutions += new_sols;
+        }
+        self.clear(&square);
+        self.fillable_squares.push(square);
+        (count, solutions)
+    }
+
+    /// Find all solutions in parallel and return each solved board in a String sequentially.
+    fn find_one_compact_par(&mut self) -> (usize, String) {
+        if self.fillable_squares.is_empty() {
+            return (1, self.to_string_compact());
+        }
+        let mut count = 0;
+        let mut solutions = String::new();
+        let square = self.next_fillable_square();
+        let num_options = self.count_options(&square);
+        let (tx, rx) = channel();
+        self.options_iter(&square)
+            .par_bridge()
+            .try_for_each_with(tx, |tx, value| {
+                let mut board = self.clone();
+                board.fill(&square, value);
+                if num_options > 1 {
+                    tx.send(board.find_one_compact_par())
+                } else {
+                    tx.send(board.find_one_compact_seq())
+                }
+            })
+            .expect("Failed to invoke on multiple threads.");
+        for _ in 0..num_options {
+            if 0 < count {
+                break;
+            }
+            let (new_count, new_sols) = rx.recv().unwrap();
+            count += new_count;
+            solutions += &new_sols;
+        }
+        self.clear(&square);
+        self.fillable_squares.push(square);
+        (count, solutions)
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     /// Returns the next best square in which to try a value, removing it from the vector.  
     /// That is the first encountered square if only 1 option.  
@@ -395,7 +602,7 @@ impl SudokuBoard {
     fn next_fillable_square(&mut self) -> SudokuSquare {
         let mut index = 0;
         let mut min_options = self.count_options(&self.fillable_squares[0]);
-        for i in 1..self.fillable_squares.len() {
+        for i in (1..self.fillable_squares.len()).rev() {
             if min_options == 1 {
                 break;
             }
@@ -567,7 +774,7 @@ mod tests {
     }
 
     #[test]
-    fn find_solutions_par() {
+    fn find_all_par() {
         let mut board = SudokuBoard::from(
             ".75.....4.1...5.7...8.7...9..2417...4.......1...8.24..3...9.7...5.3.4..88.....31.",
         );
@@ -583,7 +790,7 @@ mod tests {
             "975683124213945876648271539582417963437569281169832457326198745751324698894756312",
             "975683124213945876648271539582417963467539281139862457326198745751324698894756312",
         ];
-        let solutions = board.find_solutions_compact();
+        let solutions = board.find_all_compact();
         for solution in &expected_solutions {
             assert!(solutions.contains(solution));
         }
