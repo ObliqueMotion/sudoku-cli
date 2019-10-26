@@ -14,23 +14,23 @@ starting with the top row.
 
 `sudoku-cli` has 5 subcommands each with their own configurable options:
 * `sudoku-cli find-one`: Finds a solution to the sudoku puzzle.
-    * `-i=<value> | --input=<value>` the puzzle input.
+    * `-i=<value> | --input=<value>` the puzzle input. [required]
     * `-t=<value> | --threads=<value>` the number of threads to use. [default: CPU count]
     * `-o=<value> | --output=<value>` the file in which to write solutions. [default: terminal]
     * `-c | --compact` write output in a compact form. 
 * `sudoku-cli find-all`: Finds all solutions to an ambiguous sudoku puzzle.
-    * `-i=<value> | --input=<value>` the puzzle input.
+    * `-i=<value> | --input=<value>` the puzzle input. [required]
     * `-t=<value> | --threads=<value>` the number of threads to use. [default: CPU count]
     * `-o=<value> | --output=<value>` the file in which to write solutions. [default: terminal]
     * `-c | --compact` write output in a compact form. 
 * `sudoku-cli watch-one`: Watch the solver find a solution in the terminal.
-    * `-i=<value> | --input=<value>` the puzzle input.
-    * `-m=<value> | --ms-per-frame=<value>`: the milliseconds per frame
+    * `-i=<value> | --input=<value>` the puzzle input. [required]
+    * `-m=<value> | --ms-per-frame=<value>`: the milliseconds per frame [default: 50]
 * `sudoku-cli watch-all`: Watch the solver find all solutions in the terminal.
-    * `-i=<value> | --input=<value>` the puzzle input.
-    * `-m=<value> | --ms-per-frame=<value>`: the milliseconds per frame
+    * `-i=<value> | --input=<value>` the puzzle input. [required]
+    * `-m=<value> | --ms-per-frame=<value>`: the milliseconds per frame [default: 50]
 * `sudoku-cli count-all`: Finds all solutions to an ambiguous sudoku puzzle.
-    * `-i=<value> | --input=<value>` the puzzle input.
+    * `-i=<value> | --input=<value>` the puzzle input. [required]
     * `-t=<value> | --threads=<value>` the number of threads to use. [default: CPU count]
     
 ---
