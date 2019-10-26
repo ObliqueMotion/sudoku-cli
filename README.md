@@ -39,7 +39,7 @@ starting with the top row.
 ---
  ### Find One
  
-```sudoku-cli find-one --input=".75.....4.1...5.....8.7.........7.......6...1...8.2...3...9.7...5.3.4.........31."```
+`sudoku-cli find-one --input=".75.....4.1...5.....8.7.........7.......6...1...8.2...3...9.7...5.3.4.........31."`
 
 <img src="https://raw.githubusercontent.com/ObliqueMotion/sudoku-cli/master/images/find-one.png">
 
