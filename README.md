@@ -13,25 +13,25 @@ starting with the top row.
 ## Commands
 
 `sudoku-cli` has 5 sub-commands each with their own configurable options:
-* `sudoku-cli find-one`: Finds a solution to the sudoku puzzle.
-    * `-i=<value> | --input=<value>` the puzzle input. [required]
-    * `-t=<value> | --threads=<value>` the number of threads to use. [default: CPU count]
-    * `-o=<value> | --output=<value>` the file in which to write solutions. [default: terminal]
-    * `-c | --compact` write output in a compact form. 
-* `sudoku-cli find-all`: Finds all solutions to an ambiguous sudoku puzzle.
-    * `-i=<value> | --input=<value>` the puzzle input. [required]
-    * `-t=<value> | --threads=<value>` the number of threads to use. [default: CPU count]
-    * `-o=<value> | --output=<value>` the file in which to write solutions. [default: terminal]
-    * `-c | --compact` write output in a compact form. 
-* `sudoku-cli watch-one`: Watch the solver find a solution in the terminal.
-    * `-i=<value> | --input=<value>` the puzzle input. [required]
-    * `-m=<value> | --ms-per-frame=<value>`: the milliseconds per frame [default: 50]
-* `sudoku-cli watch-all`: Watch the solver find all solutions in the terminal.
-    * `-i=<value> | --input=<value>` the puzzle input. [required]
-    * `-m=<value> | --ms-per-frame=<value>`: the milliseconds per frame [default: 50]
-* `sudoku-cli count-all`: Finds all solutions to an ambiguous sudoku puzzle.
-    * `-i=<value> | --input=<value>` the puzzle input. [required]
-    * `-t=<value> | --threads=<value>` the number of threads to use. [default: CPU count]
+* `sudoku-cli find-one`
+    * `-i=<value> | --input=<value>`
+    * `-t=<value> | --threads=<value>`
+    * `-o=<value> | --output=<value>`
+    * `-c | --compact`
+* `sudoku-cli find-all`
+    * `-i=<value> | --input=<value>`
+    * `-t=<value> | --threads=<value>`
+    * `-o=<value> | --output=<value>`
+    * `-c | --compact`
+* `sudoku-cli watch-one`
+    * `-i=<value> | --input=<value>`
+    * `-m=<value> | --ms-per-frame=<value>`
+* `sudoku-cli watch-all`
+    * `-i=<value> | --input=<value>`
+    * `-m=<value> | --ms-per-frame=<value>`
+* `sudoku-cli count-all`
+    * `-i=<value> | --input=<value>`
+    * `-t=<value> | --threads=<value>`
     
 ---
  ## Examples
@@ -41,7 +41,7 @@ starting with the top row.
  
 `sudoku-cli find-one --input=".75.....4.1...5.....8.7.........7.......6...1...8.2...3...9.7...5.3.4.........31."`
 
-![](images/find-one.png)
+<img src="https://raw.githubusercontent.com/ObliqueMotion/sudoku-cli/master/images/find-one.png">
 
 ---
 
@@ -49,7 +49,7 @@ starting with the top row.
  
 `sudoku-cli find-all --input=path/to/puzzle --threads=8 --output=solutions.txt --compact`
 
-![](images/find-all.png)
+<img src="https://raw.githubusercontent.com/ObliqueMotion/sudoku-cli/master/images/find-all.png">
 
 ---
 
@@ -57,7 +57,7 @@ starting with the top row.
  
 `sudoku-cli watch-one --input=path/to/puzzle`
 
-![](images/watch-one.gif)
+<img src="https://raw.githubusercontent.com/ObliqueMotion/sudoku-cli/master/images/watch-one.gif">
 
 ---
 
@@ -65,12 +65,9 @@ starting with the top row.
 
 `sudoku-cli watch-all --input=path/to/puzzle --ms-per-frame=15`
 
-![](images/watch-all.gif)
-
 ---
 
  ### Count All
 
 `sudoku-cli count-all --input=path/to/puzzle --threads=8`
 
-![](images/count-all.png)
