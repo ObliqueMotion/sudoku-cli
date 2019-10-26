@@ -36,21 +36,31 @@ starting with the top row.
 ---
  ### Examples
  
+---
+ 
 `sudoku-cli find-one --input=".75.....4.1...5.....8.7.........7.......6...1...8.2...3...9.7...5.3.4.........31."`
 
 ![](images/find-one.png)
+
+---
 
 `sudoku-cli find-all --input=path/to/puzzle --threads=8 --output=solutions.txt --compact`
 
 ![](images/find-all.png)
 
+---
+
 `sudoku-cli watch-one --input=path/to/puzzle`
 
 ![](images/watch-one.gif)
 
+---
+
 `sudoku-cli watch-all --input=path/to/puzzle --ms-per-frame=15`
 
 ![](images/watch-all.gif)
+
+---
 
 `sudoku-cli count-all --input=path/to/puzzle --threads=8`
 

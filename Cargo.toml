@@ -1,8 +1,15 @@
 [package]
 name = "sudoku-cli"
-version = "1.0.0"
+version = "0.1.0"
 authors = ["ObliqueMotion"]
 edition = "2018"
+readme = "README.md"
+license = "MIT"
+documentation = "https://docs.rs/sudoku-cli"
+description = "A command-line tool for solving sudoku puzzles."
+repository = "https://github.com/ObliqueMotion/nifty"
+categories = ["command-line-interface"]
+keywords = ["sudoku", "solver", "puzzles", "cli", "fast"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
