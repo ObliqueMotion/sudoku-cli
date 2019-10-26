@@ -2,17 +2,17 @@
 
 ---
 ## About
-A command-line tool for solving sudoku puzzles. 
 
-If your input is a file path, `sudoku-cli` will read from the file. Otherwise it treats the string as input.  
-
-`sudoku-cli` reads the first 81 non-whitespace characters from the input and fills each row from left to right, 
+* A command-line tool for solving sudoku puzzles. 
+* If your input is a file path, `sudoku-cli` will read from the file. Otherwise it treats the string as input.  
+* `sudoku-cli` reads the first 81 non-whitespace characters from the input and fills each row from left to right, 
 starting with the top row.
+* `sudoku-cli` can output results to a file. The directory must already exist.
 
 ---
 ## Commands
 
-`sudoku-cli` has 5 subcommands each with their own configurable options:
+`sudoku-cli` has 5 sub-commands each with their own configurable options:
 * `sudoku-cli find-one`: Finds a solution to the sudoku puzzle.
     * `-i=<value> | --input=<value>` the puzzle input. [required]
     * `-t=<value> | --threads=<value>` the number of threads to use. [default: CPU count]
