@@ -4,6 +4,7 @@
 ## About
 
 * A command-line tool for solving sudoku puzzles. 
+* Install by running: `cargo install sudoku-cli`
 * If your input is a file path, `sudoku-cli` will read from the file. Otherwise it treats the string as input.  
 * `sudoku-cli` reads the first 81 non-whitespace characters from the input and fills each row from left to right, 
 starting with the top row.
