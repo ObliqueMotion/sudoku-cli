@@ -39,6 +39,8 @@ starting with the top row.
  
 ---
  ### Find One
+
+Finds one possible solution to a sudoku puzzle.
  
 `sudoku-cli find-one --input=".75.....4.1...5.....8.7.........7.......6...1...8.2...3...9.7...5.3.4.........31."`
 
@@ -47,6 +49,8 @@ starting with the top row.
 ---
 
  ### Find All
+
+Finds all possible solutions to a sudoku puzzle.
  
 `sudoku-cli find-all --input=path/to/puzzle --threads=8 --output=solutions.txt --compact`
 
@@ -55,6 +59,8 @@ starting with the top row.
 ---
 
  ### Watch One
+
+Watch the solver find one solution to a sudoku puzzle.
  
 `sudoku-cli watch-one --input=path/to/puzzle`
 
@@ -64,6 +70,8 @@ starting with the top row.
 
  ### Watch All
 
+Watch the solver find all possible solutions to a sudoku puzzle.
+
 `sudoku-cli watch-all --input=path/to/puzzle --ms-per-frame=15`
 
 <img src="https://raw.githubusercontent.com/ObliqueMotion/sudoku-cli/master/images/watch-all.gif">
@@ -71,6 +79,8 @@ starting with the top row.
 ---
 
  ### Count All
+
+Count the number of possible solutions without writing them to an output.
 
 `sudoku-cli count-all --input=path/to/puzzle --threads=8`
 
