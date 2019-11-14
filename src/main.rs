@@ -84,7 +84,6 @@ struct Count {
     threads: Option<usize>,
 }
 
-
 const ABOUT: &str = r#"
 ABOUT:
 

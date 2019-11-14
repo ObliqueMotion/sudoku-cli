@@ -120,8 +120,7 @@ impl SudokuBoard {
             let row_data = &self.board[row];
             for col in 0..9 {
                 if 0 == row_data.value_at(col) {
-                    self.fillable_squares
-                        .push(SudokuSquare::new(row, col, box_index(row, col)));
+                    fillable_squares.push(SudokuSquare::new(row, col, box_index(row, col)));
                 }
             }
         }
