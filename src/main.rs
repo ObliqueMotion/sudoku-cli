@@ -84,46 +84,113 @@ struct Count {
     threads: Option<usize>,
 }
 
-/// ABOUT:
-///
-/// │   A command-line tool for solving sudoku. There are five sub-commands (see usage details below):
-///
-/// │   find-one, find-all, watch-one, watch-all, count-all
-///
-/// INPUT:
-///
-/// │   If your input is a file path, sudoku-cli will read the file. Otherwise it treats the string as input.
-///
-/// │   sudoku-cli reads the first 81 non-whitespace characters and fills each row from left to right starting with the top.
-/// |   Any digits (1-9) will show up on the board. All other characters will count as a blank square.
-///
-/// │   Valid Input: .75.....42139.5.7...8.7...9..2417...4...6...1...8324..3...9.7...5.3.46988.....31.
-///
-/// │   Valid Input: ./path/to/puzzle
-///
-/// OUTPUT:
-///
-/// │   The directory to a specified output file must already exist.
-///
-/// EXAMPLES:
-///
-/// │   sudoku-cli find-one  --input=".75.....4.1...5.....8.7.........7.......6...1...8.2...3...9.7...5.3.4.........31."
-///
-/// │   sudoku-cli find-all  --input=".75.....4.1...5.....8.7.........7.......6...1...8.2...3...9.7...5.3.4.........31."
-///
-/// |   sudoku-cli find-all  --input=path/to/puzzle --threads=3 --compact
-///
-/// |   sudoku-cli find-all  --input=path/to/puzzle --output=path/to/output/file
-///
-/// |   sudoku-cli watch-all --input=path/to/puzzle --ms-per-frame=5
-///
-/// |   sudoku-cli watch-one --input=path/to/puzzle
-///
-/// │   sudoku-cli count-all --input=path/to/puzzle
-///
-/// │   For more details on each subcommand: sudoku-cli help <SUBCOMMAND>
+
+const ABOUT: &str = r#"
+ABOUT:
+
+    A command-line tool for solving sudoku. 
+    
+COMMANDS:
+    
+    sudoku-cli has five sub-commands, each with their own long and short options:
+    
+        Command: sudoku-cli find-one  
+            Description: Finds one solution to a puzzle and writes it to an output.
+                Long:    --input=value,  --output=value,  --threads=value,  --compact
+                Short:        -i=value,        -o=value,         -t=value,         -c
+                Default:      Required,        Terminal,   Number of CPUs,        Off
+            
+        Command: sudoku-cli find-all
+            Description: Finds all solutions to a puzzle and writes them to an output.
+                Long:    --input=value,  --output=value,  --threads=value,  --compact
+                Short:        -i=value,        -o=value,         -t=value,         -c
+                Default:      Required,        Terminal,   Number of CPUs,        Off
+            
+        Command: sudoku-cli watch-one 
+            Description: Watch the solver find one solution in the terminal.
+                Long:    --input=value,  --ms-per-frame=value
+                Short:        -i=value,              -m=value
+                Default:      Required,                    50
+            
+        Command: sodoku-cli watch-all 
+            Description: Watch the solver find all solutions in the terminal.
+                Long:    --input=value,  --ms-per-frame=value
+                Short:        -i=value,              -m=value
+                Default:      Required,                    50
+            
+        Command: sudoku-cli count-all
+            Description: Count all solutions without writing them to an output.
+                Long:    --input=value,  --threads=value
+                Short:        -i=value,         -t=value
+                Default:      Required,   Number of CPUs 
+
+INPUT:
+
+    If your input is a valid file path, sudoku-cli will read from the file.
+    Otherwise it treats the input value as a string.
+
+    sudoku-cli reads the first 81 non-whitespace characters from the input file or string. 
+    
+        - The first 9 of those characters are placed in the top row from left to right.
+        - The next 9 characters are placed in the second row, and so on.
+        - If a character is a digit, it will show on the board. Otherwise, it counts as a blank square.
+        
+    Example Inputs:
+
+        --input=./path/to/puzzle
+    
+        --input=.75.....42139.5.7...8.7...9..2417...4...6...1...8324..3...9.7...5.3.46988.....31.
+    
+        --input="- 7 5 - - - - - 4
+                 2 1 3 9 - 5 - 7 -
+                 - - 8 - 7 - - - 9
+                 - - 2 4 1 7 - - -
+                 4 - - - 6 - - - 1
+                 - - - 8 3 2 4 - -
+                 3 - - - 9 - 7 - -
+                 - 5 - 3 - 4 6 9 8
+                 8 - - - - - 3 1 -"
+
+OUTPUT:
+
+    sudkou-cli can write to a new file, or overwrite an existing file; but it will not create a new directory.
+    If you specify an output file, the path to the directory must already exist.
+
+EXAMPLES:
+    
+    sudoku-cli find-one  --input=./path/to/puzzle
+        Find one solution and print it to the terminal.
+
+    sudoku-cli find-all  --input=path/to/puzzle
+        Find all solutions and print them to the terminal.
+
+    sudoku-cli find-all  --input=path/to/puzzle --threads=2 --compact
+        Find all solutions using only 2 threads. Print solutiosn to the terminal in a compact format.
+
+    sudoku-cli find-all  --input=path/to/puzzle --output=path/to/output/file
+        Find all solutions and write them to a file.
+
+    sudoku-cli watch-all --input=path/to/puzzle --ms-per-frame=5
+        Watch the solver find all solutions at 5 milliseconds per frame.
+
+    sudoku-cli watch-one --input=path/to/puzzle
+        Watch the solver find one solution.
+
+    sudoku-cli count-all --input=path/to/puzzle
+        Count all solutions without writing them to an output.
+
+MORE:
+
+    For more details on each subcommand, use the help command:
+    
+        sudoku-cli help find-one
+        sudoku-cli help find-all
+        sudoku-cli help watch-one
+        sudoku-cli help watch-all
+        sudoku-cli help count-all
+"#;
 #[derive(StructOpt, Debug)]
-#[structopt(name = "sudoku-cli")]
+#[structopt(name = "sudoku-cli", about = ABOUT)]
 struct Opt {
     #[structopt(subcommand)]
     action: Action,

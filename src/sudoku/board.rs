@@ -115,7 +115,7 @@ impl SudokuBoard {
     /// Populates a vector with the coordinates of every fillable square on the board.
     /// The vector is sorted such that the squares with the fewest options are in the back.
     fn analyze_fillable_squares(&mut self) {
-        self.fillable_squares.clear();
+        let mut fillable_squares = Vec::with_capacity(81);
         for row in 0..9 {
             let row_data = &self.board[row];
             for col in 0..9 {
@@ -125,11 +125,8 @@ impl SudokuBoard {
                 }
             }
         }
-        let board: *const SudokuBoard = self;
-        unsafe {
-            self.fillable_squares
-                .sort_unstable_by_key(|sq| 9 - (*board).count_options(sq));
-        }
+        fillable_squares.sort_unstable_by_key(|sq| 9 - self.count_options(sq));
+        self.fillable_squares = fillable_squares;
     }
 
     /// Inserts a new value onto the board at a given `(row, col)`.
