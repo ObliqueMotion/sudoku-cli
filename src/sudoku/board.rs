@@ -209,13 +209,14 @@ impl SudokuBoard {
             return 1;
         }
         let mut count = 0;
-        let square = self.next_fillable_square();
-        self.options_iter(&square).for_each(|value| {
-            self.fill(&square, value);
-            count += self.count_solutions_seq();
-        });
-        self.clear(&square);
-        self.fillable_squares.push(square);
+        if let Some(square) = self.next_fillable_square() {
+            self.options_iter(&square).for_each(|value| {
+                self.fill(&square, value);
+                count += self.count_solutions_seq();
+            });
+            self.clear(&square);
+            self.fillable_squares.push(square);
+        }
         count
     }
 
@@ -225,26 +226,27 @@ impl SudokuBoard {
             return 1;
         }
         let mut count = 0;
-        let square = self.next_fillable_square();
-        let num_options = self.count_options(&square);
-        let (tx, rx) = channel();
-        self.options_iter(&square)
-            .par_bridge()
-            .try_for_each_with(tx, |tx, value| {
-                let mut board = self.clone();
-                board.fill(&square, value);
-                if num_options > 1 {
-                    tx.send(board.count_solutions_par())
-                } else {
-                    tx.send(board.count_solutions_seq())
-                }
-            })
-            .expect("Failed to invoke on multiple threads.");
-        for _ in 0..num_options {
-            count += rx.recv().unwrap();
+        if let Some(square) = self.next_fillable_square() {
+            let num_options = self.count_options(&square);
+            let (tx, rx) = channel();
+            self.options_iter(&square)
+                .par_bridge()
+                .try_for_each_with(tx, |tx, value| {
+                    let mut board = self.clone();
+                    board.fill(&square, value);
+                    if num_options > 1 {
+                        tx.send(board.count_solutions_par())
+                    } else {
+                        tx.send(board.count_solutions_seq())
+                    }
+                })
+                .expect("Failed to invoke on multiple threads.");
+            for _ in 0..num_options {
+                count += rx.recv().unwrap();
+            }
+            self.clear(&square);
+            self.fillable_squares.push(square);
         }
-        self.clear(&square);
-        self.fillable_squares.push(square);
         count
     }
 
@@ -281,18 +283,19 @@ impl SudokuBoard {
             "{}{}\n{}\n  Solutions: {}",
             CursorRestorePosition, CursorSavePosition, self, count
         );
-        let square = self.next_fillable_square();
-        for value in self.options_iter(&square) {
-            self.fill(&square, value);
-            self.watch_find_all_seq(millis_per_frame, count);
+        if let Some(square) = self.next_fillable_square() {
+            for value in self.options_iter(&square) {
+                self.fill(&square, value);
+                self.watch_find_all_seq(millis_per_frame, count);
+            }
+            self.clear(&square);
+            self.fillable_squares.push(square);
+            thread::sleep(Duration::from_millis(millis_per_frame));
+            print!(
+                "{}{}\n{}\n  Solutions: {}",
+                CursorRestorePosition, CursorSavePosition, self, count
+            );
         }
-        self.clear(&square);
-        self.fillable_squares.push(square);
-        thread::sleep(Duration::from_millis(millis_per_frame));
-        print!(
-            "{}{}\n{}\n  Solutions: {}",
-            CursorRestorePosition, CursorSavePosition, self, count
-        );
     }
 
     /// Watch the board find one solution in the terminal.
@@ -315,6 +318,9 @@ impl SudokuBoard {
 
     /// Watch the board find one solution in the terminal.
     fn watch_find_one_seq(&mut self, millis_per_frame: u64, count: &mut usize) {
+        if 0 < *count {
+            return;
+        }
         thread::sleep(Duration::from_millis(millis_per_frame));
         if self.fillable_squares.is_empty() {
             *count += 1;
@@ -324,12 +330,11 @@ impl SudokuBoard {
             );
             return;
         }
-        if 0 == *count {
-            print!(
-                "{}{}\n{}\n  Solutions: {}",
-                CursorRestorePosition, CursorSavePosition, self, count
-            );
-            let square = self.next_fillable_square();
+        print!(
+            "{}{}\n{}\n  Solutions: {}",
+            CursorRestorePosition, CursorSavePosition, self, count
+        );
+        if let Some(square) = self.next_fillable_square() {
             for value in self.options_iter(&square) {
                 self.fill(&square, value);
                 self.watch_find_one_seq(millis_per_frame, count);
@@ -360,15 +365,16 @@ impl SudokuBoard {
         }
         let mut count = 0;
         let mut solutions = String::new();
-        let square = self.next_fillable_square();
-        for value in self.options_iter(&square) {
-            self.fill(&square, value);
-            let (new_count, new_sols) = self.find_all_seq();
-            count += new_count;
-            solutions += &new_sols;
+        if let Some(square) = self.next_fillable_square() {
+            for value in self.options_iter(&square) {
+                self.fill(&square, value);
+                let (new_count, new_sols) = self.find_all_seq();
+                count += new_count;
+                solutions += &new_sols;
+            }
+            self.clear(&square);
+            self.fillable_squares.push(square);
         }
-        self.clear(&square);
-        self.fillable_squares.push(square);
         (count, solutions)
     }
 
@@ -379,28 +385,29 @@ impl SudokuBoard {
         }
         let mut count = 0;
         let mut solutions = String::new();
-        let square = self.next_fillable_square();
-        let num_options = self.count_options(&square);
-        let (tx, rx) = channel();
-        self.options_iter(&square)
-            .par_bridge()
-            .try_for_each_with(tx, |tx, value| {
-                let mut board = self.clone();
-                board.fill(&square, value);
-                if num_options > 1 {
-                    tx.send(board.find_all_par())
-                } else {
-                    tx.send(board.find_all_seq())
-                }
-            })
-            .expect("Failed to invoke on multiple threads.");
-        for _ in 0..num_options {
-            let (new_count, new_sols) = rx.recv().unwrap();
-            count += new_count;
-            solutions += &new_sols;
+        if let Some(square) = self.next_fillable_square() {
+            let num_options = self.count_options(&square);
+            let (tx, rx) = channel();
+            self.options_iter(&square)
+                .par_bridge()
+                .try_for_each_with(tx, |tx, value| {
+                    let mut board = self.clone();
+                    board.fill(&square, value);
+                    if num_options > 1 {
+                        tx.send(board.find_all_par())
+                    } else {
+                        tx.send(board.find_all_seq())
+                    }
+                })
+                .expect("Failed to invoke on multiple threads.");
+            for _ in 0..num_options {
+                let (new_count, new_sols) = rx.recv().unwrap();
+                count += new_count;
+                solutions += &new_sols;
+            }
+            self.clear(&square);
+            self.fillable_squares.push(square);
         }
-        self.clear(&square);
-        self.fillable_squares.push(square);
         (count, solutions)
     }
 
@@ -420,15 +427,16 @@ impl SudokuBoard {
         }
         let mut count = 0;
         let mut solutions = String::new();
-        let square = self.next_fillable_square();
-        for value in self.options_iter(&square) {
-            self.fill(&square, value);
-            let (new_count, new_sols) = &self.find_all_compact_seq();
-            count += new_count;
-            solutions += new_sols;
+        if let Some(square) = self.next_fillable_square() {
+            for value in self.options_iter(&square) {
+                self.fill(&square, value);
+                let (new_count, new_sols) = &self.find_all_compact_seq();
+                count += new_count;
+                solutions += new_sols;
+            }
+            self.clear(&square);
+            self.fillable_squares.push(square);
         }
-        self.clear(&square);
-        self.fillable_squares.push(square);
         (count, solutions)
     }
 
@@ -439,28 +447,29 @@ impl SudokuBoard {
         }
         let mut count = 0;
         let mut solutions = String::new();
-        let square = self.next_fillable_square();
-        let num_options = self.count_options(&square);
-        let (tx, rx) = channel();
-        self.options_iter(&square)
-            .par_bridge()
-            .try_for_each_with(tx, |tx, value| {
-                let mut board = self.clone();
-                board.fill(&square, value);
-                if num_options > 1 {
-                    tx.send(board.find_all_compact_par())
-                } else {
-                    tx.send(board.find_all_compact_seq())
-                }
-            })
-            .expect("Failed to invoke on multiple threads.");
-        for _ in 0..num_options {
-            let (new_count, new_sols) = rx.recv().unwrap();
-            count += new_count;
-            solutions += &new_sols;
+        if let Some(square) = self.next_fillable_square() {
+            let num_options = self.count_options(&square);
+            let (tx, rx) = channel();
+            self.options_iter(&square)
+                .par_bridge()
+                .try_for_each_with(tx, |tx, value| {
+                    let mut board = self.clone();
+                    board.fill(&square, value);
+                    if num_options > 1 {
+                        tx.send(board.find_all_compact_par())
+                    } else {
+                        tx.send(board.find_all_compact_seq())
+                    }
+                })
+                .expect("Failed to invoke on multiple threads.");
+            for _ in 0..num_options {
+                let (new_count, new_sols) = rx.recv().unwrap();
+                count += new_count;
+                solutions += &new_sols;
+            }
+            self.clear(&square);
+            self.fillable_squares.push(square);
         }
-        self.clear(&square);
-        self.fillable_squares.push(square);
         (count, solutions)
     }
 
@@ -480,18 +489,19 @@ impl SudokuBoard {
         }
         let mut count = 0;
         let mut solutions = String::new();
-        let square = self.next_fillable_square();
-        for value in self.options_iter(&square) {
-            if 0 < count {
-                break;
+        if let Some(square) = self.next_fillable_square() {
+            for value in self.options_iter(&square) {
+                if 0 < count {
+                    break;
+                }
+                self.fill(&square, value);
+                let (new_count, new_sols) = self.find_one_seq();
+                count += new_count;
+                solutions += &new_sols;
             }
-            self.fill(&square, value);
-            let (new_count, new_sols) = self.find_one_seq();
-            count += new_count;
-            solutions += &new_sols;
+            self.clear(&square);
+            self.fillable_squares.push(square);
         }
-        self.clear(&square);
-        self.fillable_squares.push(square);
         (count, solutions)
     }
 
@@ -502,31 +512,32 @@ impl SudokuBoard {
         }
         let mut count = 0;
         let mut solutions = String::new();
-        let square = self.next_fillable_square();
-        let num_options = self.count_options(&square);
-        let (tx, rx) = channel();
-        self.options_iter(&square)
-            .par_bridge()
-            .try_for_each_with(tx, |tx, value| {
-                let mut board = self.clone();
-                board.fill(&square, value);
-                if num_options > 1 {
-                    tx.send(board.find_one_par())
-                } else {
-                    tx.send(board.find_one_seq())
+        if let Some(square) = self.next_fillable_square() {
+            let num_options = self.count_options(&square);
+            let (tx, rx) = channel();
+            self.options_iter(&square)
+                .par_bridge()
+                .try_for_each_with(tx, |tx, value| {
+                    let mut board = self.clone();
+                    board.fill(&square, value);
+                    if num_options > 1 {
+                        tx.send(board.find_one_par())
+                    } else {
+                        tx.send(board.find_one_seq())
+                    }
+                })
+                .expect("Failed to invoke on multiple threads.");
+            for _ in 0..num_options {
+                if 0 < count {
+                    break;
                 }
-            })
-            .expect("Failed to invoke on multiple threads.");
-        for _ in 0..num_options {
-            if 0 < count {
-                break;
+                let (new_count, new_sols) = rx.recv().unwrap();
+                count += new_count;
+                solutions += &new_sols;
             }
-            let (new_count, new_sols) = rx.recv().unwrap();
-            count += new_count;
-            solutions += &new_sols;
+            self.clear(&square);
+            self.fillable_squares.push(square);
         }
-        self.clear(&square);
-        self.fillable_squares.push(square);
         (count, solutions)
     }
 
@@ -546,18 +557,19 @@ impl SudokuBoard {
         }
         let mut count = 0;
         let mut solutions = String::new();
-        let square = self.next_fillable_square();
-        for value in self.options_iter(&square) {
-            if 0 < count {
-                break;
+        if let Some(square) = self.next_fillable_square() {
+            for value in self.options_iter(&square) {
+                if 0 < count {
+                    break;
+                }
+                self.fill(&square, value);
+                let (new_count, new_sols) = &self.find_one_compact_seq();
+                count += new_count;
+                solutions += new_sols;
             }
-            self.fill(&square, value);
-            let (new_count, new_sols) = &self.find_one_compact_seq();
-            count += new_count;
-            solutions += new_sols;
+            self.clear(&square);
+            self.fillable_squares.push(square);
         }
-        self.clear(&square);
-        self.fillable_squares.push(square);
         (count, solutions)
     }
 
@@ -568,51 +580,55 @@ impl SudokuBoard {
         }
         let mut count = 0;
         let mut solutions = String::new();
-        let square = self.next_fillable_square();
-        let num_options = self.count_options(&square);
-        let (tx, rx) = channel();
-        self.options_iter(&square)
-            .par_bridge()
-            .try_for_each_with(tx, |tx, value| {
-                let mut board = self.clone();
-                board.fill(&square, value);
-                if num_options > 1 {
-                    tx.send(board.find_one_compact_par())
-                } else {
-                    tx.send(board.find_one_compact_seq())
+        if let Some(square) = self.next_fillable_square() {
+            let num_options = self.count_options(&square);
+            let (tx, rx) = channel();
+            self.options_iter(&square)
+                .par_bridge()
+                .try_for_each_with(tx, |tx, value| {
+                    let mut board = self.clone();
+                    board.fill(&square, value);
+                    if num_options > 1 {
+                        tx.send(board.find_one_compact_par())
+                    } else {
+                        tx.send(board.find_one_compact_seq())
+                    }
+                })
+                .expect("Failed to invoke on multiple threads.");
+            for _ in 0..num_options {
+                if 0 < count {
+                    break;
                 }
-            })
-            .expect("Failed to invoke on multiple threads.");
-        for _ in 0..num_options {
-            if 0 < count {
-                break;
+                let (new_count, new_sols) = rx.recv().unwrap();
+                count += new_count;
+                solutions += &new_sols;
             }
-            let (new_count, new_sols) = rx.recv().unwrap();
-            count += new_count;
-            solutions += &new_sols;
+            self.clear(&square);
+            self.fillable_squares.push(square);
         }
-        self.clear(&square);
-        self.fillable_squares.push(square);
         (count, solutions)
     }
 
     /// Returns the next best square in which to try a value, removing it from the vector.  
     /// That is the first encountered square if only 1 option.  
     /// Or else any square that is tied for the least number of options.  
-    fn next_fillable_square(&mut self) -> SudokuSquare {
+    fn next_fillable_square(&mut self) -> Option<SudokuSquare> {
         let mut index = 0;
-        let mut min_options = self.count_options(&self.fillable_squares[0]);
+        let mut min_options = self.count_options(&self.fillable_squares[index]);
         for i in (1..self.fillable_squares.len()).rev() {
-            if min_options == 1 {
-                break;
-            }
-            let curr_options = self.count_options(&self.fillable_squares[i]);
-            if curr_options < min_options {
-                min_options = curr_options;
-                index = i;
+            match min_options {
+                0 => return None,
+                1 => return Some(self.fillable_squares.swap_remove(index)),
+                _ => {
+                    let curr_options = self.count_options(&self.fillable_squares[i]);
+                    if curr_options < min_options {
+                        min_options = curr_options;
+                        index = i;
+                    }
+                }
             }
         }
-        self.fillable_squares.swap_remove(index)
+        Some(self.fillable_squares.swap_remove(index))
     }
 
     /// Returns a string representation of the board.
